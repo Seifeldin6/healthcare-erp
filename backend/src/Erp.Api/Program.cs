@@ -10,8 +10,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services
-    .AddCoreModule()
-    .AddTelePharmacyModule();
+    .AddCoreModule(builder.Configuration)
+    .AddTelePharmacyModule(builder.Configuration);
 
 var app = builder.Build();
 
