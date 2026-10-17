@@ -1,0 +1,34 @@
+# Hide AI & Local Editor Configs from GitHub
+rules.md
+GEMINI.md
+.antigravity/
+.vs/
+.idea/
+*.user
+*.suo
+
+# .NET Outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+*.DotSettings.user
+appsettings.Development.json
+.env
+
+# React / Node Outputs
+**/node_modules/
+**/dist/
+**/build/
+.npm/
+
+# Flutter / Mobile Outputs
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/ios/Pods/
+**/android/.gradle/
+
+# Logs & OS
+**/*.log
+.DS_Store
