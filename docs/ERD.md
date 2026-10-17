@@ -1,3 +1,6 @@
+# Healthcare ERP - Database Schema (ERD)
+
+```mermaid
 erDiagram
     CORE_TENANTS ||--o{ CORE_USERS : "employs_optional"
     CORE_USERS ||--o| CORE_PATIENTS : "has_patient_profile"
@@ -188,3 +191,4 @@ erDiagram
         boolean IsDeleted
         timestamptz IssuedAtUtc
     }
+```
