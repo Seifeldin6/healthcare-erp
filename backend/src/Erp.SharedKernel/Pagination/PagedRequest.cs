@@ -16,4 +16,7 @@ public class PagedRequest
         get => _pageSize;
         set => _pageSize = value < 1 ? 1 : value > 50 ? 50 : value;
     }
+
+    public int NormalizedPageNumber => _pageNumber;
+    public int NormalizedPageSize => _pageSize;
 }

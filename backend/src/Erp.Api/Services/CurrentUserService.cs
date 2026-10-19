@@ -35,5 +35,14 @@ public sealed class CurrentUserService : ICurrentUserService
         }
     }
 
+    public Guid? PatientId
+    {
+        get
+        {
+            var value = Principal?.FindFirstValue("patient_id");
+            return Guid.TryParse(value, out var id) ? id : null;
+        }
+    }
+
     public string? Role => Principal?.FindFirstValue(ClaimTypes.Role);
 }

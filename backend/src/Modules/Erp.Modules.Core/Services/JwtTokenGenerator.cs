@@ -20,6 +20,10 @@ public sealed class JwtTokenGenerator
     {
         var key = _configuration["Jwt:Key"]
             ?? throw new InvalidOperationException("Jwt:Key configuration is missing.");
+
+        if (key.Length < 32)
+            throw new InvalidOperationException("Jwt:Key must be at least 32 characters long.");
+
         var issuer = _configuration["Jwt:Issuer"]
             ?? throw new InvalidOperationException("Jwt:Issuer configuration is missing.");
         var audience = _configuration["Jwt:Audience"]

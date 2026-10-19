@@ -41,8 +41,11 @@ public class Consultation : BaseEntity
         };
     }
 
-    public void Accept()
+    public void Accept(decimal? agreedFeeAmount = null)
     {
+        if (agreedFeeAmount.HasValue)
+            AgreedFeeAmount = agreedFeeAmount.Value;
+
         Status = ConsultationStatus.AcceptedAwaitingPayment;
         AcceptedAtUtc = DateTime.UtcNow;
     }

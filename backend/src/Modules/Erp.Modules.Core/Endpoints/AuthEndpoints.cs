@@ -38,10 +38,10 @@ public static class AuthEndpoints
         JwtTokenGenerator tokenGenerator,
         CancellationToken ct)
     {
-        if (await db.Users.AnyAsync(u => u.Email == request.Email, ct))
+        if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
             return Results.Conflict(new { message = "Email already registered." });
 
-        if (await db.Patients.AnyAsync(p => p.NationalId == request.NationalId, ct))
+        if (await db.Patients.AsNoTracking().AnyAsync(p => p.NationalId == request.NationalId, ct))
             return Results.Conflict(new { message = "National ID already registered." });
 
         var passwordHash = passwordHasher.Hash(request.Password);
@@ -83,7 +83,7 @@ public static class AuthEndpoints
         JwtTokenGenerator tokenGenerator,
         CancellationToken ct)
     {
-        if (await db.Users.AnyAsync(u => u.Email == request.Email, ct))
+        if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
             return Results.Conflict(new { message = "Email already registered." });
 
         var passwordHash = passwordHasher.Hash(request.Password);
@@ -110,7 +110,7 @@ public static class AuthEndpoints
         JwtTokenGenerator tokenGenerator,
         CancellationToken ct)
     {
-        var user = await db.Users.FirstOrDefaultAsync(
+        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(
             u => u.Email == request.EmailOrPhone || u.PhoneNumber == request.EmailOrPhone, ct);
 
         if (user is null || !passwordHasher.Verify(request.Password, user.PasswordHash))
@@ -122,7 +122,7 @@ public static class AuthEndpoints
         Guid? patientId = null;
         if (user.Role == UserRole.Patient)
         {
-            var patient = await db.Patients.FirstOrDefaultAsync(p => p.UserId == user.Id, ct);
+            var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == user.Id, ct);
             patientId = patient?.Id;
         }
 

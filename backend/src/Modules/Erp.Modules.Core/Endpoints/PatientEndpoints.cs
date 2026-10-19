@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Erp.Modules.Core.Data;
 using Erp.Modules.Core.Entities;
 using Erp.Modules.Core.Enums;
@@ -40,17 +41,18 @@ public static class PatientEndpoints
         if (!Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
-        var patient = await db.Patients.FirstOrDefaultAsync(p => p.UserId == userId, ct);
+        var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
             return Results.NotFound(new { message = "Patient profile not found." });
 
         var summary = await db.PatientClinicalSummaries
+            .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
 
         if (summary is null)
             return Results.NotFound(new { message = "Clinical summary not found." });
 
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
+        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
 
         return Results.Ok(new
         {
@@ -69,22 +71,46 @@ public static class PatientEndpoints
         if (!Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
-        var patient = await db.Patients.FirstOrDefaultAsync(p => p.UserId == userId, ct);
+        var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
             return Results.NotFound(new { message = "Patient profile not found." });
+
+        // Validate and normalise each JSON field; null/empty defaults to "[]".
+        if (!TryNormaliseJson(request.AllergiesJson, out var allergiesJson))
+            return Results.BadRequest(new { message = "AllergiesJson is not valid JSON." });
+
+        if (!TryNormaliseJson(request.ChronicConditionsJson, out var chronicConditionsJson))
+            return Results.BadRequest(new { message = "ChronicConditionsJson is not valid JSON." });
+
+        if (!TryNormaliseJson(request.ActiveMedicationsJson, out var activeMedicationsJson))
+            return Results.BadRequest(new { message = "ActiveMedicationsJson is not valid JSON." });
+
+        if (!TryNormaliseJson(request.MajorSurgeriesJson, out var majorSurgeriesJson))
+            return Results.BadRequest(new { message = "MajorSurgeriesJson is not valid JSON." });
 
         var summary = await db.PatientClinicalSummaries
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
 
         if (summary is null)
-            return Results.NotFound(new { message = "Clinical summary not found." });
-
-        summary.Update(
-            request.AllergiesJson,
-            request.ChronicConditionsJson,
-            request.ActiveMedicationsJson,
-            request.ActiveHerbalPrescriptionsJson ?? summary.ActiveHerbalPrescriptionsJson,
-            request.MajorSurgeriesJson);
+        {
+            // Upsert: create the record if it does not exist yet.
+            summary = PatientClinicalSummary.Create(patient.Id);
+            summary.Update(allergiesJson, chronicConditionsJson, activeMedicationsJson,
+                request.ActiveHerbalPrescriptionsJson is null ? "[]" : NormaliseJsonOrDefault(request.ActiveHerbalPrescriptionsJson),
+                majorSurgeriesJson);
+            db.PatientClinicalSummaries.Add(summary);
+        }
+        else
+        {
+            summary.Update(
+                allergiesJson,
+                chronicConditionsJson,
+                activeMedicationsJson,
+                request.ActiveHerbalPrescriptionsJson is null
+                    ? summary.ActiveHerbalPrescriptionsJson
+                    : NormaliseJsonOrDefault(request.ActiveHerbalPrescriptionsJson),
+                majorSurgeriesJson);
+        }
 
         await db.SaveChangesAsync(ct);
 
@@ -98,11 +124,12 @@ public static class PatientEndpoints
         ICurrentUserService currentUser,
         CancellationToken ct)
     {
-        var patient = await db.Patients.FirstOrDefaultAsync(p => p.Id == patientId, ct);
+        var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.Id == patientId, ct);
         if (patient is null)
             return Results.NotFound(new { message = "Patient not found." });
 
         var summary = await db.PatientClinicalSummaries
+            .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patientId, ct);
 
         if (summary is null)
@@ -121,7 +148,7 @@ public static class PatientEndpoints
         db.AuditLogs.Add(auditLog);
         await db.SaveChangesAsync(ct);
 
-        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == patient.UserId, ct);
+        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == patient.UserId, ct);
 
         return Results.Ok(new
         {
@@ -129,6 +156,32 @@ public static class PatientEndpoints
             ClinicalSummary = MapSummary(summary)
         });
     }
+
+    // Returns false when the string is non-null, non-empty, and not valid JSON.
+    private static bool TryNormaliseJson(string? value, out string result)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            result = "[]";
+            return true;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(value);
+            result = value;
+            return true;
+        }
+        catch (JsonException)
+        {
+            result = string.Empty;
+            return false;
+        }
+    }
+
+    // For optional fields where we default to "[]" on invalid input rather than rejecting.
+    private static string NormaliseJsonOrDefault(string value)
+        => TryNormaliseJson(value, out var result) ? result : "[]";
 
     private static object MapPatient(Patient p, User? u) => new
     {

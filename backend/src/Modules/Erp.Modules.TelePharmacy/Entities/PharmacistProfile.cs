@@ -50,4 +50,17 @@ public class PharmacistProfile : BaseEntity
     public void Suspend() => VerificationStatus = VerificationStatus.Suspended;
 
     public void SetAvailability(bool isAvailable) => IsAvailableForRequests = isAvailable;
+
+    public void UpdateDetails(
+        string? bio,
+        decimal consultationFee,
+        PharmacistSpecialization specialization,
+        string? licenseDocumentUrl = null)
+    {
+        Bio = bio;
+        ConsultationFee = consultationFee;
+        Specialization = specialization;
+        if (!string.IsNullOrEmpty(licenseDocumentUrl))
+            LicenseDocumentUrl = licenseDocumentUrl;
+    }
 }

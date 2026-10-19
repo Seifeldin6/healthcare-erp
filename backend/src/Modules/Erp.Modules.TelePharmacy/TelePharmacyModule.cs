@@ -1,6 +1,9 @@
 using Erp.Modules.TelePharmacy.Adapters;
 using Erp.Modules.TelePharmacy.Data;
+using Erp.Modules.TelePharmacy.Endpoints;
+using Erp.Modules.TelePharmacy.Hubs;
 using Erp.SharedKernel.Interfaces;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +24,8 @@ public static class TelePharmacyModule
 
         services.AddScoped<IVideoProvider, JitsiVideoProvider>();
 
+        services.AddSignalR();
+
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(TelePharmacyModule).Assembly));
 
         return services;
@@ -28,6 +33,9 @@ public static class TelePharmacyModule
 
     public static IEndpointRouteBuilder MapTelePharmacyEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapHerbsEndpoints();
+        app.MapPharmacistEndpoints();
+        app.MapConsultationEndpoints();
         return app;
     }
 }

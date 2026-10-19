@@ -35,7 +35,8 @@ public static class PaymentEndpoints
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
             return Results.Unauthorized();
 
-        var patient = await db.Patients.FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value, ct);
+        var patient = await db.Patients.AsNoTracking()
+            .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value, ct);
         if (patient is null)
             return Results.NotFound(new { message = "Patient profile not found." });
 
@@ -55,9 +56,9 @@ public static class PaymentEndpoints
 
         payment.MarkAsPaid(transactionId);
 
-        db.Payments.Add(payment);
-        await db.SaveChangesAsync(ct);
-
+        // Build the integration event before saving so the handler can validate
+        // that the consultation exists and is in the correct state. If the handler
+        // throws, SaveChangesAsync is never called and no phantom payment is persisted.
         var integrationEvent = new ConsultationPaidIntegrationEvent(
             request.ConsultationId,
             patient.Id,
@@ -67,7 +68,18 @@ public static class PaymentEndpoints
                 ? new DateTimeOffset(payment.PaidAtUtc.Value, TimeSpan.Zero)
                 : DateTimeOffset.UtcNow);
 
-        await publisher.Publish(integrationEvent, ct);
+        try
+        {
+            // Validate via the TelePharmacy handler BEFORE committing the Core payment row.
+            await publisher.Publish(integrationEvent, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { message = ex.Message });
+        }
+
+        db.Payments.Add(payment);
+        await db.SaveChangesAsync(ct);
 
         return Results.Ok(new
         {
