@@ -39,6 +39,21 @@ public class PharmacistProfile : BaseEntity
         };
     }
 
+    public static PharmacistProfile Create(
+        Guid id,
+        Guid userId,
+        Guid? tenantId,
+        string syndicateLicenseNumber,
+        string? licenseDocumentUrl,
+        PharmacistSpecialization specialization,
+        string? bio,
+        decimal consultationFee)
+    {
+        var profile = Create(userId, tenantId, syndicateLicenseNumber, licenseDocumentUrl, specialization, bio, consultationFee);
+        profile.Id = id;
+        return profile;
+    }
+
     public void Approve()
     {
         VerificationStatus = VerificationStatus.Approved;

@@ -3,6 +3,7 @@ using Erp.Modules.Core.Entities;
 using Erp.Modules.Core.Enums;
 using Erp.Modules.Core.Services;
 using Erp.SharedKernel.Interfaces;
+using Erp.SharedKernel.Responses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -18,15 +19,25 @@ public static class AuthEndpoints
 
         group.MapPost("/register-patient", RegisterPatient)
             .AllowAnonymous()
-            .WithName("RegisterPatient");
+            .WithName("RegisterPatient")
+            .Produces<RegisterPatientResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPost("/register-pharmacist", RegisterPharmacist)
             .AllowAnonymous()
-            .WithName("RegisterPharmacist");
+            .WithName("RegisterPharmacist")
+            .Produces<RegisterPharmacistResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPost("/login", Login)
             .AllowAnonymous()
-            .WithName("Login");
+            .WithName("Login")
+            .Produces<LoginResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
         return app;
     }
@@ -39,10 +50,10 @@ public static class AuthEndpoints
         CancellationToken ct)
     {
         if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
-            return Results.Conflict(new { message = "Email already registered." });
+            return Results.Conflict(new ErrorResponse("Email already registered."));
 
         if (await db.Patients.AsNoTracking().AnyAsync(p => p.NationalId == request.NationalId, ct))
-            return Results.Conflict(new { message = "National ID already registered." });
+            return Results.Conflict(new ErrorResponse("National ID already registered."));
 
         var passwordHash = passwordHasher.Hash(request.Password);
         var user = User.Create(null, request.Email, request.PhoneNumber, passwordHash, request.FullName, UserRole.Patient);
@@ -67,13 +78,11 @@ public static class AuthEndpoints
 
         var token = tokenGenerator.GenerateToken(user, patient.Id);
 
-        return Results.Ok(new
-        {
-            Token = token,
-            UserId = user.Id,
-            PatientId = patient.Id,
-            Role = user.Role.ToString()
-        });
+        return Results.Ok(new RegisterPatientResponse(
+            token,
+            user.Id,
+            patient.Id,
+            user.Role.ToString()));
     }
 
     private static async Task<IResult> RegisterPharmacist(
@@ -84,7 +93,7 @@ public static class AuthEndpoints
         CancellationToken ct)
     {
         if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
-            return Results.Conflict(new { message = "Email already registered." });
+            return Results.Conflict(new ErrorResponse("Email already registered."));
 
         var passwordHash = passwordHasher.Hash(request.Password);
         var user = User.Create(request.TenantId, request.Email, request.PhoneNumber, passwordHash, request.FullName, UserRole.Pharmacist);
@@ -94,13 +103,11 @@ public static class AuthEndpoints
 
         var token = tokenGenerator.GenerateToken(user);
 
-        return Results.Ok(new
-        {
-            Token = token,
-            UserId = user.Id,
-            Role = user.Role.ToString(),
-            TenantId = user.TenantId
-        });
+        return Results.Ok(new RegisterPharmacistResponse(
+            token,
+            user.Id,
+            user.Role.ToString(),
+            user.TenantId));
     }
 
     private static async Task<IResult> Login(
@@ -128,14 +135,12 @@ public static class AuthEndpoints
 
         var token = tokenGenerator.GenerateToken(user, patientId);
 
-        return Results.Ok(new
-        {
-            Token = token,
-            UserId = user.Id,
-            Role = user.Role.ToString(),
-            TenantId = user.TenantId,
-            PatientId = patientId
-        });
+        return Results.Ok(new LoginResponse(
+            token,
+            user.Id,
+            user.Role.ToString(),
+            user.TenantId,
+            patientId));
     }
 
     public sealed record RegisterPatientRequest(
@@ -162,4 +167,23 @@ public static class AuthEndpoints
     public sealed record LoginRequest(
         string EmailOrPhone,
         string Password);
+
+    public sealed record RegisterPatientResponse(
+        string Token,
+        Guid UserId,
+        Guid PatientId,
+        string Role);
+
+    public sealed record RegisterPharmacistResponse(
+        string Token,
+        Guid UserId,
+        string Role,
+        Guid? TenantId);
+
+    public sealed record LoginResponse(
+        string Token,
+        Guid UserId,
+        string Role,
+        Guid? TenantId,
+        Guid? PatientId);
 }

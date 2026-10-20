@@ -31,4 +31,17 @@ public class Tenant : BaseEntity
             SubscriptionEndsAtUtc = subscriptionEndsAtUtc
         };
     }
+
+    public static Tenant Create(
+        Guid id,
+        string name,
+        TenantType tenantType,
+        SubscriptionPlan subscriptionPlan,
+        string enabledModulesJson,
+        DateTime? subscriptionEndsAtUtc)
+    {
+        var tenant = Create(name, tenantType, subscriptionPlan, enabledModulesJson, subscriptionEndsAtUtc);
+        tenant.Id = id;
+        return tenant;
+    }
 }

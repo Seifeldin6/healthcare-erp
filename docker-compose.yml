@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:18-alpine}
+    container_name: erp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: healthcare_erp
+      POSTGRES_USER: ${POSTGRES_USER:-erp_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-StrongProductionPassword2026!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-erp_admin} -d healthcare_erp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: erp_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=healthcare_erp;Username=${POSTGRES_USER:-erp_admin};Password=${POSTGRES_PASSWORD:-StrongProductionPassword2026!}
+      - Jwt__Key=${JWT_KEY:-healthcare-erp-super-secret-jwt-key-2026!}
+      - Jwt__Issuer=${JWT_ISSUER:-healthcare-erp-api}
+      - Jwt__Audience=${JWT_AUDIENCE:-healthcare-erp-clients}
+      - Video__ServerUrl=${VIDEO_SERVER_URL:-https://meet.jit.si}
+    ports:
+      - "5000:5000"
+
+volumes:
+  postgres_data:
+    driver: local

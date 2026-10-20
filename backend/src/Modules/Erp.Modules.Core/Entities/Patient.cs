@@ -42,4 +42,21 @@ public class Patient : BaseEntity
             EmergencyContactPhone = emergencyContactPhone
         };
     }
+
+    public static Patient Create(
+        Guid id,
+        Guid userId,
+        string nationalId,
+        DateOnly dateOfBirth,
+        Gender gender,
+        BloodType bloodType,
+        decimal weightKg,
+        decimal heightCm,
+        string? emergencyContactName,
+        string? emergencyContactPhone)
+    {
+        var patient = Create(userId, nationalId, dateOfBirth, gender, bloodType, weightKg, heightCm, emergencyContactName, emergencyContactPhone);
+        patient.Id = id;
+        return patient;
+    }
 }

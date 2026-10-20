@@ -21,7 +21,9 @@ public sealed class CurrentUserService : ICurrentUserService
     {
         get
         {
-            var value = Principal?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var value = Principal?.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                ?? Principal?.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? Principal?.FindFirstValue("sub");
             return Guid.TryParse(value, out var id) ? id : null;
         }
     }
@@ -44,5 +46,5 @@ public sealed class CurrentUserService : ICurrentUserService
         }
     }
 
-    public string? Role => Principal?.FindFirstValue(ClaimTypes.Role);
+    public string? Role => Principal?.FindFirstValue(ClaimTypes.Role) ?? Principal?.FindFirstValue("role");
 }

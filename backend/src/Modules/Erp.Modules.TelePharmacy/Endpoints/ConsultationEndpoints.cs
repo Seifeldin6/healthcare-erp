@@ -7,6 +7,7 @@ using Erp.Modules.TelePharmacy.Hubs;
 using Erp.SharedKernel.Events;
 using Erp.SharedKernel.Interfaces;
 using Erp.SharedKernel.Pagination;
+using Erp.SharedKernel.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,39 +25,81 @@ public static class ConsultationEndpoints
 
         group.MapPost("/", CreateConsultation)
             .RequireAuthorization("PatientOnly")
-            .WithName("CreateConsultation");
+            .WithName("CreateConsultation")
+            .Produces<ConsultationResponse>(StatusCodes.Status201Created)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/accept", AcceptConsultation)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("AcceptConsultation");
+            .WithName("AcceptConsultation")
+            .Produces<ConsultationResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPost("/{id:guid}/reject", RejectConsultation)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("RejectConsultation");
+            .WithName("RejectConsultation")
+            .Produces<ConsultationResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapGet("/", GetMyConsultations)
             .RequireAuthorization(policy => policy.RequireRole("Patient", "Pharmacist", "SuperAdmin", "Doctor"))
-            .WithName("GetMyConsultations");
+            .WithName("GetMyConsultations")
+            .Produces<PagedResult<ConsultationResponse>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapGet("/{id:guid}", GetConsultationById)
             .RequireAuthorization()
-            .WithName("GetConsultationById");
+            .WithName("GetConsultationById")
+            .Produces<ConsultationDetailResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/start-video", StartVideo)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("StartVideo");
+            .WithName("StartVideo")
+            .Produces<StartVideoResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPost("/{id:guid}/end-video", EndVideo)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("EndVideo");
+            .WithName("EndVideo")
+            .Produces<EndVideoResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/herbal-prescription", IssueHerbalPrescription)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("IssueHerbalPrescription");
+            .WithName("IssueHerbalPrescription")
+            .Produces<IssueHerbalPrescriptionResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapGet("/{id:guid}/messages", GetConsultationMessages)
             .RequireAuthorization()
-            .WithName("GetConsultationMessages");
+            .WithName("GetConsultationMessages")
+            .Produces<PagedResult<ChatMessageResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
     }
@@ -72,20 +115,20 @@ public static class ConsultationEndpoints
 
         var patientId = currentUser.PatientId ?? request.PatientId;
         if (!patientId.HasValue || patientId.Value == Guid.Empty)
-            return Results.BadRequest(new { message = "Patient identifier could not be determined." });
+            return Results.BadRequest(new ErrorResponse("Patient identifier could not be determined."));
 
         if (string.IsNullOrWhiteSpace(request.ChiefComplaintAndSymptoms))
-            return Results.BadRequest(new { message = "Chief complaint and symptoms are required." });
+            return Results.BadRequest(new ErrorResponse("Chief complaint and symptoms are required."));
 
         var pharmacist = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == request.PharmacistProfileId && !p.IsDeleted, ct);
 
         if (pharmacist is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         if (pharmacist.VerificationStatus != VerificationStatus.Approved || !pharmacist.IsAvailableForRequests)
-            return Results.BadRequest(new { message = "Pharmacist is not currently available for consultation requests." });
+            return Results.BadRequest(new ErrorResponse("Pharmacist is not currently available for consultation requests."));
 
         var expiresAtUtc = DateTime.UtcNow.AddHours(request.DurationHours ?? 24);
 
@@ -119,30 +162,28 @@ public static class ConsultationEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
 
         if (consultation.PharmacistProfileId != profile.Id)
             return Results.Forbid();
 
         if (consultation.Status != ConsultationStatus.Pending)
         {
-            return Results.Conflict(new
-            {
-                message = $"Cannot accept consultation in status '{consultation.Status}'. Must be 'Pending'."
-            });
+            return Results.Conflict(new ErrorResponse(
+                $"Cannot accept consultation in status '{consultation.Status}'. Must be 'Pending'."));
         }
 
         if (consultation.ExpiresAtUtc <= DateTime.UtcNow)
         {
             consultation.Expire();
             await db.SaveChangesAsync(ct);
-            return Results.Conflict(new { message = "Consultation request has expired." });
+            return Results.Conflict(new ErrorResponse("Consultation request has expired."));
         }
 
         var agreedFee = request?.Fee ?? profile.ConsultationFee;
@@ -164,30 +205,28 @@ public static class ConsultationEndpoints
             return Results.Unauthorized();
 
         if (string.IsNullOrWhiteSpace(request.RejectionReason))
-            return Results.BadRequest(new { message = "Rejection reason is required." });
+            return Results.BadRequest(new ErrorResponse("Rejection reason is required."));
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
 
         if (consultation.PharmacistProfileId != profile.Id)
             return Results.Forbid();
 
         if (consultation.Status != ConsultationStatus.Pending)
         {
-            return Results.Conflict(new
-            {
-                message = $"Cannot reject consultation in status '{consultation.Status}'. Must be 'Pending'."
-            });
+            return Results.Conflict(new ErrorResponse(
+                $"Cannot reject consultation in status '{consultation.Status}'. Must be 'Pending'."));
         }
 
         consultation.Reject(request.RejectionReason);
@@ -212,7 +251,7 @@ public static class ConsultationEndpoints
         {
             var patientId = currentUser.PatientId;
             if (!patientId.HasValue)
-                return Results.BadRequest(new { message = "Patient claim missing from token." });
+                return Results.BadRequest(new ErrorResponse("Patient claim missing from token."));
 
             query = query.Where(c => c.PatientId == patientId.Value);
         }
@@ -223,7 +262,7 @@ public static class ConsultationEndpoints
                 .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
             if (profile is null)
-                return Results.NotFound(new { message = "Pharmacist profile not found." });
+                return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
             query = query.Where(c => c.PharmacistProfileId == profile.Id);
         }
@@ -257,14 +296,41 @@ public static class ConsultationEndpoints
         Guid id,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        IVideoProvider videoProvider,
         CancellationToken ct)
     {
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+            return Results.Unauthorized();
+
         var consultation = await db.Consultations
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
+
+        var isPatient = string.Equals(currentUser.Role, "Patient", StringComparison.OrdinalIgnoreCase);
+        var isPharmacist = string.Equals(currentUser.Role, "Pharmacist", StringComparison.OrdinalIgnoreCase);
+
+        if (isPatient)
+        {
+            if (currentUser.PatientId.HasValue && consultation.PatientId != currentUser.PatientId.Value)
+                return Results.Forbid();
+        }
+        else if (isPharmacist)
+        {
+            var pharmacistProfile = await db.PharmacistProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
+
+            if (pharmacistProfile is null || consultation.PharmacistProfileId != pharmacistProfile.Id)
+                return Results.Forbid();
+        }
+        else if (!string.Equals(currentUser.Role, "SuperAdmin", StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(currentUser.Role, "Doctor", StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.Forbid();
+        }
 
         var chatRoom = await db.ChatRooms
             .AsNoTracking()
@@ -274,45 +340,60 @@ public static class ConsultationEndpoints
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.ConsultationId == consultation.Id && !p.IsDeleted, ct);
 
-        var latestVideoSession = await db.VideoSessions
+        var activeVideoSession = await db.VideoSessions
+            .AsNoTracking()
+            .Where(v => v.ConsultationId == consultation.Id && !v.IsDeleted && v.SessionStatus == VideoSessionStatus.Active)
+            .OrderByDescending(v => v.StartedAtUtc)
+            .FirstOrDefaultAsync(ct);
+
+        var latestVideoSession = activeVideoSession ?? await db.VideoSessions
             .AsNoTracking()
             .Where(v => v.ConsultationId == consultation.Id && !v.IsDeleted)
             .OrderByDescending(v => v.CreatedAt)
             .FirstOrDefaultAsync(ct);
 
-        return Results.Ok(new
-        {
-            Consultation = MapConsultation(consultation),
-            ChatRoom = chatRoom is null ? null : new
-            {
-                chatRoom.Id,
-                chatRoom.IsReadOnly,
-                chatRoom.OpenedAtUtc,
-                chatRoom.ClosedAtUtc
-            },
-            Prescription = prescription is null ? null : new
-            {
-                prescription.Id,
-                prescription.PrescriptionNumber,
-                prescription.ClinicalDiagnosisSummary,
-                prescription.PrescribedHerbsJson,
-                prescription.DrugHerbInteractionWarnings,
-                prescription.DietaryAndLifestyleInstructions,
-                prescription.DurationDays,
-                prescription.PdfDocumentUrl,
-                prescription.IssuedAtUtc
-            },
-            VideoSession = latestVideoSession is null ? null : new
-            {
-                latestVideoSession.Id,
-                ProviderType = latestVideoSession.ProviderType.ToString(),
-                latestVideoSession.ExternalRoomName,
-                SessionStatus = latestVideoSession.SessionStatus.ToString(),
-                latestVideoSession.StartedAtUtc,
-                latestVideoSession.EndedAtUtc,
-                latestVideoSession.DurationSeconds
-            }
-        });
+        var serverUrl = videoProvider.ServerUrl;
+
+        var chatRoomDto = chatRoom is null ? null : new ChatRoomDetailResponse(
+            chatRoom.Id,
+            chatRoom.IsReadOnly,
+            chatRoom.OpenedAtUtc,
+            chatRoom.ClosedAtUtc);
+
+        var prescriptionDto = prescription is null ? null : new HerbalPrescriptionDetailResponse(
+            prescription.Id,
+            prescription.PrescriptionNumber,
+            prescription.ClinicalDiagnosisSummary,
+            prescription.PrescribedHerbsJson,
+            prescription.DrugHerbInteractionWarnings,
+            prescription.DietaryAndLifestyleInstructions,
+            prescription.DurationDays,
+            prescription.PdfDocumentUrl,
+            prescription.IssuedAtUtc);
+
+        var videoSessionDto = latestVideoSession is null ? null : new VideoSessionDetailResponse(
+            latestVideoSession.Id,
+            latestVideoSession.Id,
+            "Jitsi",
+            serverUrl,
+            latestVideoSession.ExternalRoomName,
+            $"{serverUrl}/{latestVideoSession.ExternalRoomName}",
+            latestVideoSession.ProviderType.ToString(),
+            latestVideoSession.ExternalRoomName,
+            latestVideoSession.SessionStatus.ToString(),
+            latestVideoSession.StartedAtUtc,
+            latestVideoSession.EndedAtUtc,
+            latestVideoSession.DurationSeconds);
+
+        var response = new ConsultationDetailResponse(
+            MapConsultation(consultation),
+            chatRoom?.Id,
+            chatRoom?.IsReadOnly ?? false,
+            chatRoomDto,
+            prescriptionDto,
+            videoSessionDto);
+
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> StartVideo(
@@ -331,13 +412,13 @@ public static class ConsultationEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
 
         if (consultation.PharmacistProfileId != profile.Id)
             return Results.Forbid();
@@ -345,10 +426,8 @@ public static class ConsultationEndpoints
         if (consultation.Status != ConsultationStatus.ActiveChat &&
             consultation.Status != ConsultationStatus.InVideoCall)
         {
-            return Results.Conflict(new
-            {
-                message = $"Cannot start video call in consultation status '{consultation.Status}'. Must be ActiveChat or InVideoCall."
-            });
+            return Results.Conflict(new ErrorResponse(
+                $"Cannot start video call in consultation status '{consultation.Status}'. Must be ActiveChat or InVideoCall."));
         }
 
         var roomName = await videoProvider.CreateRoomAsync($"consultation-{consultation.Id:N}", ct);
@@ -371,34 +450,30 @@ public static class ConsultationEndpoints
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.ConsultationId == consultation.Id && !r.IsDeleted, ct);
 
-        var videoEvent = new
-        {
-            ConsultationId = consultation.Id,
-            VideoSessionId = videoSession.Id,
-            RoomName = roomName,
-            Provider = VideoProviderType.Jitsi.ToString(),
-            videoSession.StartedAtUtc
-        };
+        var serverUrl = videoProvider.ServerUrl;
+        var joinUrl = $"{serverUrl}/{roomName}";
+
+        var videoPayload = new StartVideoResponse(
+            videoSession.Id,
+            consultation.Id,
+            "Jitsi",
+            serverUrl,
+            roomName,
+            joinUrl,
+            pharmacistToken,
+            VideoSessionStatus.Active.ToString(),
+            videoSession.StartedAtUtc);
 
         if (chatRoom is not null)
         {
             await hubContext.Clients.Group(chatRoom.Id.ToString())
-                .SendAsync("VideoCallStarted", videoEvent, ct);
+                .SendAsync("VideoCallStarted", videoPayload, ct);
 
             await hubContext.Clients.Group(chatRoom.Id.ToString())
-                .SendAsync("IncomingVideoCall", videoEvent, ct);
+                .SendAsync("IncomingVideoCall", videoPayload, ct);
         }
 
-        return Results.Ok(new
-        {
-            VideoSessionId = videoSession.Id,
-            ConsultationId = consultation.Id,
-            RoomName = roomName,
-            Token = pharmacistToken,
-            Provider = VideoProviderType.Jitsi.ToString(),
-            Status = VideoSessionStatus.Active.ToString(),
-            videoSession.StartedAtUtc
-        });
+        return Results.Ok(videoPayload);
     }
 
     private static async Task<IResult> EndVideo(
@@ -406,6 +481,7 @@ public static class ConsultationEndpoints
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
         IVideoProvider videoProvider,
+        IHubContext<ConsultationHub> hubContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -416,13 +492,13 @@ public static class ConsultationEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
 
         if (consultation.PharmacistProfileId != profile.Id)
             return Results.Forbid();
@@ -443,13 +519,24 @@ public static class ConsultationEndpoints
         consultation.ReturnToChat();
         await db.SaveChangesAsync(ct);
 
-        return Results.Ok(new
+        var chatRoom = await db.ChatRooms
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.ConsultationId == consultation.Id && !r.IsDeleted, ct);
+
+        var endEvent = new EndVideoResponse(
+            consultation.Id,
+            activeVideoSession?.Id,
+            consultation.Status.ToString(),
+            activeVideoSession?.EndedAtUtc,
+            activeVideoSession?.DurationSeconds);
+
+        if (chatRoom is not null)
         {
-            ConsultationId = consultation.Id,
-            Status = consultation.Status.ToString(),
-            VideoSessionId = activeVideoSession?.Id,
-            DurationSeconds = activeVideoSession?.DurationSeconds
-        });
+            await hubContext.Clients.Group(chatRoom.Id.ToString())
+                .SendAsync("VideoCallEnded", endEvent, ct);
+        }
+
+        return Results.Ok(endEvent);
     }
 
     private static async Task<IResult> IssueHerbalPrescription(
@@ -469,13 +556,13 @@ public static class ConsultationEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new { message = "Consultation not found." });
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
 
         if (consultation.PharmacistProfileId != profile.Id)
             return Results.Forbid();
@@ -483,14 +570,12 @@ public static class ConsultationEndpoints
         if (consultation.Status != ConsultationStatus.ActiveChat &&
             consultation.Status != ConsultationStatus.InVideoCall)
         {
-            return Results.Conflict(new
-            {
-                message = $"Cannot issue herbal prescription for consultation in status '{consultation.Status}'. Must be ActiveChat or InVideoCall."
-            });
+            return Results.Conflict(new ErrorResponse(
+                $"Cannot issue herbal prescription for consultation in status '{consultation.Status}'. Must be ActiveChat or InVideoCall."));
         }
 
         if (request.DurationDays <= 0)
-            return Results.BadRequest(new { message = "DurationDays must be greater than zero." });
+            return Results.BadRequest(new ErrorResponse("DurationDays must be greater than zero."));
 
         string herbsJson;
         if (request.Herbs is not null && request.Herbs.Count > 0)
@@ -506,12 +591,12 @@ public static class ConsultationEndpoints
             }
             catch (JsonException)
             {
-                return Results.BadRequest(new { message = "PrescribedHerbsJson is not valid JSON." });
+                return Results.BadRequest(new ErrorResponse("PrescribedHerbsJson is not valid JSON."));
             }
         }
         else
         {
-            return Results.BadRequest(new { message = "Prescribed herbs must be provided." });
+            return Results.BadRequest(new ErrorResponse("Prescribed herbs must be provided."));
         }
 
         var prescriptionNumber = $"RX-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..20].ToUpperInvariant();
@@ -561,37 +646,71 @@ public static class ConsultationEndpoints
             }, ct);
         }
 
-        return Results.Ok(new
-        {
-            PrescriptionId = prescription.Id,
-            PrescriptionNumber = prescription.PrescriptionNumber,
-            ConsultationId = consultation.Id,
-            PatientId = consultation.PatientId,
-            PharmacistProfileId = profile.Id,
+        var response = new IssueHerbalPrescriptionResponse(
+            prescription.Id,
+            prescription.PrescriptionNumber,
+            consultation.Id,
+            consultation.PatientId,
+            profile.Id,
             prescription.ClinicalDiagnosisSummary,
-            PrescribedHerbsJson = herbsJson,
+            herbsJson,
             prescription.DrugHerbInteractionWarnings,
             prescription.DietaryAndLifestyleInstructions,
             prescription.DurationDays,
             prescription.PdfDocumentUrl,
             prescription.IssuedAtUtc,
-            ConsultationStatus = consultation.Status.ToString(),
-            ChatRoomClosed = chatRoom?.IsReadOnly ?? true
-        });
+            consultation.Status.ToString(),
+            chatRoom?.IsReadOnly ?? true);
+
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> GetConsultationMessages(
         Guid id,
         [AsParameters] PagedRequest pagedRequest,
+        ICurrentUserService currentUser,
         TelePharmacyDbContext db,
         CancellationToken ct)
     {
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+            return Results.Unauthorized();
+
+        var consultation = await db.Consultations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
+
+        if (consultation is null)
+            return Results.NotFound(new ErrorResponse("Consultation not found."));
+
+        var isPatient = string.Equals(currentUser.Role, "Patient", StringComparison.OrdinalIgnoreCase);
+        var isPharmacist = string.Equals(currentUser.Role, "Pharmacist", StringComparison.OrdinalIgnoreCase);
+
+        if (isPatient)
+        {
+            if (currentUser.PatientId.HasValue && consultation.PatientId != currentUser.PatientId.Value)
+                return Results.Forbid();
+        }
+        else if (isPharmacist)
+        {
+            var profile = await db.PharmacistProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
+
+            if (profile is null || consultation.PharmacistProfileId != profile.Id)
+                return Results.Forbid();
+        }
+        else if (!string.Equals(currentUser.Role, "SuperAdmin", StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(currentUser.Role, "Doctor", StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.Forbid();
+        }
+
         var chatRoom = await db.ChatRooms
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.ConsultationId == id && !r.IsDeleted, ct);
 
         if (chatRoom is null)
-            return Results.NotFound(new { message = "Chat room not found for this consultation." });
+            return Results.NotFound(new ErrorResponse("Chat room not found for this consultation."));
 
         var messages = await db.ChatMessages
             .AsNoTracking()
@@ -680,4 +799,77 @@ public static class ConsultationEndpoints
         string? AttachmentUrl,
         bool IsRead,
         DateTime SentAtUtc);
+
+    public sealed record ChatRoomDetailResponse(
+        Guid Id,
+        bool IsReadOnly,
+        DateTime OpenedAtUtc,
+        DateTime? ClosedAtUtc);
+
+    public sealed record HerbalPrescriptionDetailResponse(
+        Guid Id,
+        string PrescriptionNumber,
+        string? ClinicalDiagnosisSummary,
+        string PrescribedHerbsJson,
+        string? DrugHerbInteractionWarnings,
+        string? DietaryAndLifestyleInstructions,
+        int DurationDays,
+        string? PdfDocumentUrl,
+        DateTime IssuedAtUtc);
+
+    public sealed record VideoSessionDetailResponse(
+        Guid VideoSessionId,
+        Guid Id,
+        string Provider,
+        string ServerUrl,
+        string RoomName,
+        string JoinUrl,
+        string ProviderType,
+        string ExternalRoomName,
+        string SessionStatus,
+        DateTime? StartedAtUtc,
+        DateTime? EndedAtUtc,
+        int? DurationSeconds);
+
+    public sealed record ConsultationDetailResponse(
+        ConsultationResponse Consultation,
+        Guid? ChatRoomId,
+        bool IsChatReadOnly,
+        ChatRoomDetailResponse? ChatRoom,
+        HerbalPrescriptionDetailResponse? Prescription,
+        VideoSessionDetailResponse? VideoSession);
+
+    public sealed record StartVideoResponse(
+        Guid VideoSessionId,
+        Guid ConsultationId,
+        string Provider,
+        string ServerUrl,
+        string RoomName,
+        string JoinUrl,
+        string Token,
+        string Status,
+        DateTime? StartedAtUtc);
+
+    public sealed record EndVideoResponse(
+        Guid ConsultationId,
+        Guid? VideoSessionId,
+        string Status,
+        DateTime? EndedAtUtc,
+        int? DurationSeconds);
+
+    public sealed record IssueHerbalPrescriptionResponse(
+        Guid PrescriptionId,
+        string PrescriptionNumber,
+        Guid ConsultationId,
+        Guid PatientId,
+        Guid PharmacistProfileId,
+        string? ClinicalDiagnosisSummary,
+        string PrescribedHerbsJson,
+        string? DrugHerbInteractionWarnings,
+        string? DietaryAndLifestyleInstructions,
+        int DurationDays,
+        string? PdfDocumentUrl,
+        DateTime IssuedAtUtc,
+        string ConsultationStatus,
+        bool ChatRoomClosed);
 }

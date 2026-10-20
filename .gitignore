@@ -4,6 +4,7 @@ GEMINI.md
 .antigravity/
 .vs/
 .idea/
+.vscode/
 *.user
 *.suo
 
@@ -15,6 +16,8 @@ GEMINI.md
 *.DotSettings.user
 appsettings.Development.json
 .env
+TestResults/
+**/TestResults/
 
 # React / Node Outputs
 **/node_modules/

@@ -14,6 +14,17 @@ public sealed class JitsiVideoProvider : IVideoProvider
         _configuration = configuration;
     }
 
+    public string ServerUrl
+    {
+        get
+        {
+            var url = _configuration["Video:ServerUrl"];
+            if (string.IsNullOrWhiteSpace(url))
+                throw new InvalidOperationException("Video:ServerUrl configuration is missing.");
+            return url.TrimEnd('/');
+        }
+    }
+
     public Task<string> CreateRoomAsync(string roomName, CancellationToken ct = default)
     {
         var sanitized = SanitizeRoomName(roomName);

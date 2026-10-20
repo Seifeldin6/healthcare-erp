@@ -3,6 +3,7 @@ using Erp.Modules.Core.Entities;
 using Erp.Modules.Core.Enums;
 using Erp.SharedKernel.Events;
 using Erp.SharedKernel.Interfaces;
+using Erp.SharedKernel.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,15 +18,29 @@ public static class PaymentEndpoints
     {
         var group = app.MapGroup("/api/core/payments");
 
-        group.MapPost("/mock-pay", MockPay)
+        group.MapPost("/checkout", Checkout)
             .RequireAuthorization("PatientOnly")
-            .WithName("MockPay");
+            .WithName("Checkout")
+            .Produces<PaymentCheckoutResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
+
+        group.MapPost("/mock-pay", Checkout)
+            .RequireAuthorization("PatientOnly")
+            .WithName("MockPay")
+            .Produces<PaymentCheckoutResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         return app;
     }
 
-    private static async Task<IResult> MockPay(
-        MockPayRequest request,
+    private static async Task<IResult> Checkout(
+        PaymentCheckoutRequest request,
         ICurrentUserService currentUser,
         CoreDbContext db,
         IPaymentGateway paymentGateway,
@@ -38,7 +53,10 @@ public static class PaymentEndpoints
         var patient = await db.Patients.AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value, ct);
         if (patient is null)
-            return Results.NotFound(new { message = "Patient profile not found." });
+            return Results.NotFound(new ErrorResponse("Patient profile not found."));
+
+        if (request.Amount <= 0)
+            return Results.BadRequest(new ErrorResponse("Payment amount must be greater than zero."));
 
         var transactionId = await paymentGateway.CreatePaymentIntentAsync(
             request.Amount, request.Currency, $"Consultation {request.ConsultationId}", ct);
@@ -75,19 +93,27 @@ public static class PaymentEndpoints
         }
         catch (InvalidOperationException ex)
         {
-            return Results.Conflict(new { message = ex.Message });
+            return Results.Conflict(new ErrorResponse(ex.Message));
         }
 
         db.Payments.Add(payment);
         await db.SaveChangesAsync(ct);
 
-        return Results.Ok(new
-        {
-            PaymentId = payment.Id,
-            Status = PaymentStatus.Paid.ToString(),
-            payment.GatewayTransactionId
-        });
+        return Results.Ok(new PaymentCheckoutResponse(
+            payment.Id,
+            PaymentStatus.Paid.ToString(),
+            payment.GatewayTransactionId));
     }
+
+    public sealed record PaymentCheckoutRequest(
+        Guid ConsultationId,
+        decimal Amount,
+        string Currency = "EGP");
+
+    public sealed record PaymentCheckoutResponse(
+        Guid PaymentId,
+        string Status,
+        string? GatewayTransactionId);
 
     public sealed record MockPayRequest(
         Guid ConsultationId,

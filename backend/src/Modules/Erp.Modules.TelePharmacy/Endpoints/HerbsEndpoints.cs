@@ -1,6 +1,7 @@
 using Erp.Modules.TelePharmacy.Data;
 using Erp.Modules.TelePharmacy.Entities;
 using Erp.SharedKernel.Pagination;
+using Erp.SharedKernel.Responses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -16,15 +17,24 @@ public static class HerbsEndpoints
 
         group.MapGet("/", GetHerbs)
             .RequireAuthorization()
-            .WithName("GetHerbs");
+            .WithName("GetHerbs")
+            .Produces<PagedResult<HerbResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/{id:guid}", GetHerbById)
             .RequireAuthorization()
-            .WithName("GetHerbById");
+            .WithName("GetHerbById")
+            .Produces<HerbResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/", CreateHerb)
             .RequireAuthorization("ClinicalStaff")
-            .WithName("CreateHerb");
+            .WithName("CreateHerb")
+            .Produces<HerbResponse>(StatusCodes.Status201Created)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
         return app;
     }
@@ -87,7 +97,7 @@ public static class HerbsEndpoints
             .FirstOrDefaultAsync(ct);
 
         if (herb is null)
-            return Results.NotFound(new { message = "Herb not found." });
+            return Results.NotFound(new ErrorResponse("Herb not found."));
 
         return Results.Ok(herb);
     }
@@ -101,7 +111,7 @@ public static class HerbsEndpoints
             string.IsNullOrWhiteSpace(request.EnglishCommonName) ||
             string.IsNullOrWhiteSpace(request.ArabicCommonName))
         {
-            return Results.BadRequest(new { message = "Scientific name, English common name, and Arabic common name are required." });
+            return Results.BadRequest(new ErrorResponse("Scientific name, English common name, and Arabic common name are required."));
         }
 
         var contraindications = string.IsNullOrWhiteSpace(request.ContraindicationsJson) ? "[]" : request.ContraindicationsJson;

@@ -3,6 +3,9 @@
     <Project Path="Modules/Erp.Modules.Core/Erp.Modules.Core.csproj" />
     <Project Path="Modules/Erp.Modules.TelePharmacy/Erp.Modules.TelePharmacy.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="../tests/Erp.Tests/Erp.Tests.csproj" />
+  </Folder>
   <Project Path="Erp.Api/Erp.Api.csproj" />
   <Project Path="Erp.SharedKernel/Erp.SharedKernel.csproj" />
 </Solution>

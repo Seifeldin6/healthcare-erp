@@ -34,4 +34,18 @@ public class User : BaseEntity
             Role = role
         };
     }
+
+    public static User Create(
+        Guid id,
+        Guid? tenantId,
+        string email,
+        string phoneNumber,
+        string passwordHash,
+        string fullName,
+        UserRole role)
+    {
+        var user = Create(tenantId, email, phoneNumber, passwordHash, fullName, role);
+        user.Id = id;
+        return user;
+    }
 }

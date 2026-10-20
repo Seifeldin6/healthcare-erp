@@ -3,10 +3,13 @@ using Erp.Modules.TelePharmacy.Entities;
 using Erp.Modules.TelePharmacy.Enums;
 using Erp.SharedKernel.Interfaces;
 using Erp.SharedKernel.Pagination;
+using Erp.SharedKernel.Responses;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Erp.Modules.TelePharmacy.Endpoints;
 
@@ -18,23 +21,47 @@ public static class PharmacistEndpoints
 
         group.MapGet("/", GetApprovedAvailablePharmacists)
             .RequireAuthorization()
-            .WithName("GetApprovedAvailablePharmacists");
+            .WithName("GetApprovedAvailablePharmacists")
+            .Produces<PagedResult<PharmacistResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/me", GetMyPharmacistProfile)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("GetMyPharmacistProfile");
+            .WithName("GetMyPharmacistProfile")
+            .Produces<PharmacistResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/me/profile", UpsertMyPharmacistProfile)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("UpsertMyPharmacistProfile");
+            .WithName("CreateMyPharmacistProfile")
+            .Produces<PharmacistResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
+
+        group.MapPut("/me/profile", UpsertMyPharmacistProfile)
+            .RequireAuthorization("PharmacistOnly")
+            .WithName("UpdateMyPharmacistProfile")
+            .Produces<PharmacistResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPut("/me/availability", ToggleMyAvailability)
             .RequireAuthorization("PharmacistOnly")
-            .WithName("ToggleMyAvailability");
+            .WithName("ToggleMyAvailability")
+            .Produces<PharmacistAvailabilityResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/verify", VerifyPharmacist)
             .RequireAuthorization()
-            .WithName("VerifyPharmacist");
+            .WithName("VerifyPharmacist")
+            .Produces<PharmacistResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
     }
@@ -87,7 +114,7 @@ public static class PharmacistEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         return Results.Ok(MapProfile(profile));
     }
@@ -96,6 +123,7 @@ public static class PharmacistEndpoints
         UpsertPharmacistProfileRequest request,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        IWebHostEnvironment environment,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -104,26 +132,40 @@ public static class PharmacistEndpoints
         var profile = await db.PharmacistProfiles
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
+        var licenseNumber = !string.IsNullOrWhiteSpace(request.LicenseNumber)
+            ? request.LicenseNumber
+            : request.SyndicateLicenseNumber;
+
+        var issuingDoc = !string.IsNullOrWhiteSpace(request.IssuingAuthority)
+            ? request.IssuingAuthority
+            : request.LicenseDocumentUrl;
+
         if (profile is null)
         {
-            if (string.IsNullOrWhiteSpace(request.SyndicateLicenseNumber))
-                return Results.BadRequest(new { message = "Syndicate license number is required." });
+            if (string.IsNullOrWhiteSpace(licenseNumber))
+                return Results.BadRequest(new ErrorResponse("License number is required."));
 
             var licenseExists = await db.PharmacistProfiles
                 .AsNoTracking()
-                .AnyAsync(p => p.SyndicateLicenseNumber == request.SyndicateLicenseNumber && !p.IsDeleted, ct);
+                .AnyAsync(p => p.SyndicateLicenseNumber == licenseNumber && !p.IsDeleted, ct);
 
             if (licenseExists)
-                return Results.Conflict(new { message = "Syndicate license number is already registered." });
+                return Results.Conflict(new ErrorResponse("License number is already registered."));
 
             profile = PharmacistProfile.Create(
                 currentUser.UserId.Value,
                 currentUser.TenantId,
-                request.SyndicateLicenseNumber,
-                request.LicenseDocumentUrl,
+                licenseNumber,
+                issuingDoc,
                 request.Specialization,
                 request.Bio,
                 request.ConsultationFee);
+
+            if (environment.IsDevelopment())
+            {
+                profile.Approve();
+                profile.SetAvailability(true);
+            }
 
             db.PharmacistProfiles.Add(profile);
         }
@@ -133,7 +175,7 @@ public static class PharmacistEndpoints
                 request.Bio,
                 request.ConsultationFee,
                 request.Specialization,
-                request.LicenseDocumentUrl);
+                issuingDoc);
         }
 
         await db.SaveChangesAsync(ct);
@@ -153,27 +195,22 @@ public static class PharmacistEndpoints
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var targetAvailability = request?.IsAvailable ?? !profile.IsAvailableForRequests;
 
         if (targetAvailability && profile.VerificationStatus != VerificationStatus.Approved)
         {
-            return Results.BadRequest(new
-            {
-                message = "Only approved pharmacists can set availability to true."
-            });
+            return Results.BadRequest(new ErrorResponse("Only approved pharmacists can set availability to true."));
         }
 
         profile.SetAvailability(targetAvailability);
         await db.SaveChangesAsync(ct);
 
-        return Results.Ok(new
-        {
-            PharmacistProfileId = profile.Id,
+        return Results.Ok(new PharmacistAvailabilityResponse(
+            profile.Id,
             profile.IsAvailableForRequests,
-            VerificationStatus = profile.VerificationStatus.ToString()
-        });
+            profile.VerificationStatus.ToString()));
     }
 
     private static async Task<IResult> VerifyPharmacist(
@@ -186,14 +223,20 @@ public static class PharmacistEndpoints
             .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new { message = "Pharmacist profile not found." });
+            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
 
         var approve = request?.Approve ?? true;
 
         if (approve)
+        {
             profile.Approve();
+            profile.SetAvailability(true);
+        }
         else
+        {
             profile.Reject();
+            profile.SetAvailability(false);
+        }
 
         await db.SaveChangesAsync(ct);
 
@@ -226,14 +269,21 @@ public static class PharmacistEndpoints
         bool IsAvailableForRequests,
         DateTime? VerifiedAtUtc);
 
+    public sealed record PharmacistAvailabilityResponse(
+        Guid PharmacistProfileId,
+        bool IsAvailableForRequests,
+        string VerificationStatus);
+
     public sealed record UpdateAvailabilityRequest(bool? IsAvailable = null);
 
     public sealed record UpsertPharmacistProfileRequest(
-        string SyndicateLicenseNumber,
-        string? LicenseDocumentUrl,
-        PharmacistSpecialization Specialization,
-        string? Bio,
-        decimal ConsultationFee);
+        string? LicenseNumber = null,
+        string? SyndicateLicenseNumber = null,
+        string? IssuingAuthority = null,
+        string? LicenseDocumentUrl = null,
+        PharmacistSpecialization Specialization = PharmacistSpecialization.ClinicalPharmacy,
+        string? Bio = null,
+        decimal ConsultationFee = 0m);
 
     public sealed record VerifyPharmacistRequest(bool Approve = true, string? Reason = null);
 }

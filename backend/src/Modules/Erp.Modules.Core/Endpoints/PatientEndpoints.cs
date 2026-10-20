@@ -4,6 +4,7 @@ using Erp.Modules.Core.Data;
 using Erp.Modules.Core.Entities;
 using Erp.Modules.Core.Enums;
 using Erp.SharedKernel.Interfaces;
+using Erp.SharedKernel.Responses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -19,15 +20,26 @@ public static class PatientEndpoints
 
         group.MapGet("/me/clinical-summary", GetMyClinicalSummary)
             .RequireAuthorization("PatientOnly")
-            .WithName("GetMyClinicalSummary");
+            .WithName("GetMyClinicalSummary")
+            .Produces<PatientClinicalSummaryDetailResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPut("/me/clinical-summary", UpdateMyClinicalSummary)
             .RequireAuthorization("PatientOnly")
-            .WithName("UpdateMyClinicalSummary");
+            .WithName("UpdateMyClinicalSummary")
+            .Produces<PatientClinicalSummaryResponse>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapGet("/{patientId:guid}/clinical-summary", GetPatientClinicalSummary)
             .RequireAuthorization("ClinicalStaff")
-            .WithName("GetPatientClinicalSummary");
+            .WithName("GetPatientClinicalSummary")
+            .Produces<PatientClinicalSummaryDetailResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
     }
@@ -37,28 +49,28 @@ public static class PatientEndpoints
         CoreDbContext db,
         CancellationToken ct)
     {
-        var userIdStr = principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+        var userIdStr = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
+            ?? principal.FindFirstValue("sub");
         if (!Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
-            return Results.NotFound(new { message = "Patient profile not found." });
+            return Results.NotFound(new ErrorResponse("Patient profile not found."));
 
         var summary = await db.PatientClinicalSummaries
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
 
         if (summary is null)
-            return Results.NotFound(new { message = "Clinical summary not found." });
+            return Results.NotFound(new ErrorResponse("Clinical summary not found."));
 
         var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        return Results.Ok(new
-        {
-            Patient = MapPatient(patient, user),
-            ClinicalSummary = MapSummary(summary)
-        });
+        return Results.Ok(new PatientClinicalSummaryDetailResponse(
+            MapPatient(patient, user),
+            MapSummary(summary)));
     }
 
     private static async Task<IResult> UpdateMyClinicalSummary(
@@ -67,33 +79,34 @@ public static class PatientEndpoints
         CoreDbContext db,
         CancellationToken ct)
     {
-        var userIdStr = principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+        var userIdStr = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
+            ?? principal.FindFirstValue("sub");
         if (!Guid.TryParse(userIdStr, out var userId))
             return Results.Unauthorized();
 
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
-            return Results.NotFound(new { message = "Patient profile not found." });
+            return Results.NotFound(new ErrorResponse("Patient profile not found."));
 
         // Validate and normalise each JSON field; null/empty defaults to "[]".
         if (!TryNormaliseJson(request.AllergiesJson, out var allergiesJson))
-            return Results.BadRequest(new { message = "AllergiesJson is not valid JSON." });
+            return Results.BadRequest(new ErrorResponse("AllergiesJson is not valid JSON."));
 
         if (!TryNormaliseJson(request.ChronicConditionsJson, out var chronicConditionsJson))
-            return Results.BadRequest(new { message = "ChronicConditionsJson is not valid JSON." });
+            return Results.BadRequest(new ErrorResponse("ChronicConditionsJson is not valid JSON."));
 
         if (!TryNormaliseJson(request.ActiveMedicationsJson, out var activeMedicationsJson))
-            return Results.BadRequest(new { message = "ActiveMedicationsJson is not valid JSON." });
+            return Results.BadRequest(new ErrorResponse("ActiveMedicationsJson is not valid JSON."));
 
         if (!TryNormaliseJson(request.MajorSurgeriesJson, out var majorSurgeriesJson))
-            return Results.BadRequest(new { message = "MajorSurgeriesJson is not valid JSON." });
+            return Results.BadRequest(new ErrorResponse("MajorSurgeriesJson is not valid JSON."));
 
         var summary = await db.PatientClinicalSummaries
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
 
         if (summary is null)
         {
-            // Upsert: create the record if it does not exist yet.
             summary = PatientClinicalSummary.Create(patient.Id);
             summary.Update(allergiesJson, chronicConditionsJson, activeMedicationsJson,
                 request.ActiveHerbalPrescriptionsJson is null ? "[]" : NormaliseJsonOrDefault(request.ActiveHerbalPrescriptionsJson),
@@ -126,14 +139,14 @@ public static class PatientEndpoints
     {
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.Id == patientId, ct);
         if (patient is null)
-            return Results.NotFound(new { message = "Patient not found." });
+            return Results.NotFound(new ErrorResponse("Patient not found."));
 
         var summary = await db.PatientClinicalSummaries
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patientId, ct);
 
         if (summary is null)
-            return Results.NotFound(new { message = "Clinical summary not found." });
+            return Results.NotFound(new ErrorResponse("Clinical summary not found."));
 
         var auditLog = AuditLog.Create(
             currentUser.UserId,
@@ -150,14 +163,11 @@ public static class PatientEndpoints
 
         var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == patient.UserId, ct);
 
-        return Results.Ok(new
-        {
-            Patient = MapPatient(patient, user),
-            ClinicalSummary = MapSummary(summary)
-        });
+        return Results.Ok(new PatientClinicalSummaryDetailResponse(
+            MapPatient(patient, user),
+            MapSummary(summary)));
     }
 
-    // Returns false when the string is non-null, non-empty, and not valid JSON.
     private static bool TryNormaliseJson(string? value, out string result)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -179,28 +189,24 @@ public static class PatientEndpoints
         }
     }
 
-    // For optional fields where we default to "[]" on invalid input rather than rejecting.
     private static string NormaliseJsonOrDefault(string value)
         => TryNormaliseJson(value, out var result) ? result : "[]";
 
-    private static object MapPatient(Patient p, User? u) => new
-    {
+    private static PatientProfileResponse MapPatient(Patient p, User? u) => new(
         p.Id,
         p.UserId,
-        FullName = u?.FullName,
-        Email = u?.Email,
+        u?.FullName,
+        u?.Email,
         p.NationalId,
         p.DateOfBirth,
-        Gender = p.Gender.ToString(),
-        BloodType = p.BloodType.ToString(),
+        p.Gender.ToString(),
+        p.BloodType.ToString(),
         p.WeightKg,
         p.HeightCm,
         p.EmergencyContactName,
-        p.EmergencyContactPhone
-    };
+        p.EmergencyContactPhone);
 
-    private static object MapSummary(PatientClinicalSummary s) => new
-    {
+    private static PatientClinicalSummaryResponse MapSummary(PatientClinicalSummary s) => new(
         s.Id,
         s.PatientId,
         s.AllergiesJson,
@@ -208,8 +214,7 @@ public static class PatientEndpoints
         s.ActiveMedicationsJson,
         s.ActiveHerbalPrescriptionsJson,
         s.MajorSurgeriesJson,
-        s.LastUpdatedAtUtc
-    };
+        s.LastUpdatedAtUtc);
 
     public sealed record UpdateClinicalSummaryRequest(
         string AllergiesJson,
@@ -217,4 +222,32 @@ public static class PatientEndpoints
         string ActiveMedicationsJson,
         string MajorSurgeriesJson,
         string? ActiveHerbalPrescriptionsJson = null);
+
+    public sealed record PatientProfileResponse(
+        Guid Id,
+        Guid UserId,
+        string? FullName,
+        string? Email,
+        string NationalId,
+        DateOnly DateOfBirth,
+        string Gender,
+        string BloodType,
+        decimal WeightKg,
+        decimal HeightCm,
+        string? EmergencyContactName,
+        string? EmergencyContactPhone);
+
+    public sealed record PatientClinicalSummaryResponse(
+        Guid Id,
+        Guid PatientId,
+        string AllergiesJson,
+        string ChronicConditionsJson,
+        string ActiveMedicationsJson,
+        string ActiveHerbalPrescriptionsJson,
+        string MajorSurgeriesJson,
+        DateTime LastUpdatedAtUtc);
+
+    public sealed record PatientClinicalSummaryDetailResponse(
+        PatientProfileResponse Patient,
+        PatientClinicalSummaryResponse ClinicalSummary);
 }
