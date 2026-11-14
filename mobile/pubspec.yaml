@@ -66,8 +66,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # assets:
-  # - assets/images/
-  # - assets/svgs/
+  assets:
+  - assets/splash/
 flutter_intl:
   enabled: true
