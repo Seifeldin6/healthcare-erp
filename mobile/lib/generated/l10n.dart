@@ -55,9 +55,44 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Healthcare`
-  String get appTitle {
-    return Intl.message('Healthcare', name: 'appTitle', desc: '', args: []);
+  /// `Shifa`
+  String get appName {
+    return Intl.message('Shifa', name: 'appName', desc: '', args: []);
+  }
+
+  /// `شفاء`
+  String get appNameSecondary {
+    return Intl.message('شفاء', name: 'appNameSecondary', desc: '', args: []);
+  }
+
+  /// `Trusted pharmacy care, wherever you are.`
+  String get splashTagline {
+    return Intl.message(
+      'Trusted pharmacy care, wherever you are.',
+      name: 'splashTagline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TELE-PHARMACY`
+  String get splashFooterEn {
+    return Intl.message(
+      'TELE-PHARMACY',
+      name: 'splashFooterEn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `صيدلية عن بُعد`
+  String get splashFooterAr {
+    return Intl.message(
+      'صيدلية عن بُعد',
+      name: 'splashFooterAr',
+      desc: '',
+      args: [],
+    );
   }
 }
 
