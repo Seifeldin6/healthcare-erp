@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/theme/light_theme.dart';
+import 'package:healthcare_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class HealthcareApp extends StatelessWidget {
@@ -7,34 +11,26 @@ class HealthcareApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Healthcare App',
-      debugShowCheckedModeBanner: false,
-      // Localization Configuration (Flutter Intl)
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: ThemeData(scaffoldBackgroundColor: Colors.white),
-      locale: const Locale('ar'),
-      supportedLocales: S.delegate.supportedLocales,
-      home: TestScreen(),
-    );
-  }
-}
-class TestScreen extends StatelessWidget {
-  const TestScreen({super.key});
+    return ScreenUtilInit(
+      designSize: const Size(390, 844),
+      minTextAdapt: true,
+      builder: (context, child) => MaterialApp(
+        title: 'Healthcare App',
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: child!,
+        ),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(S.of(context).appTitle),
-      ),
-      body: Center(
-        child: Text(S.of(context).appTitle),
+        supportedLocales: S.delegate.supportedLocales,
+        theme: LightTheme.theme,
+        home: const SplashScreen(),
       ),
     );
   }

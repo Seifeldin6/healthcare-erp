@@ -1,4 +1,8 @@
 {
     "@@locale": "ar",
-    "appTitle": "الرعاية الصحية"
+    "appName": "شفاء",
+    "appNameSecondary": "Shifa",
+    "splashTagline": "رعاية صيدلانية موثوقة، أينما كنت.",
+    "splashFooterEn": "TELE-PHARMACY",
+    "splashFooterAr": "صيدلية عن بُعد"
 }
