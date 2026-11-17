@@ -39,7 +39,7 @@ abstract final class LightTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        minimumSize: Size(double.infinity, 56.h),
+        minimumSize: Size(double.infinity, 60.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
         ),

@@ -94,6 +94,476 @@ class S {
       args: [],
     );
   }
+
+  /// `Skip`
+  String get onboardingSkip {
+    return Intl.message('Skip', name: 'onboardingSkip', desc: '', args: []);
+  }
+
+  /// `Next`
+  String get onboardingNext {
+    return Intl.message('Next', name: 'onboardingNext', desc: '', args: []);
+  }
+
+  /// `Create account`
+  String get onboardingCreateAccount {
+    return Intl.message(
+      'Create account',
+      name: 'onboardingCreateAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already have an account?`
+  String get onboardingAlreadyHaveAccount {
+    return Intl.message(
+      'Already have an account?',
+      name: 'onboardingAlreadyHaveAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get onboardingSignIn {
+    return Intl.message(
+      'Sign in',
+      name: 'onboardingSignIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find a verified\npharmacist`
+  String get onboardingStep1Title {
+    return Intl.message(
+      'Find a verified\npharmacist',
+      name: 'onboardingStep1Title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Browse clinical and herbal pharmacists, see who is available now and what a consultation costs.`
+  String get onboardingStep1Description {
+    return Intl.message(
+      'Browse clinical and herbal pharmacists, see who is available now and what a consultation costs.',
+      name: 'onboardingStep1Description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Consult by chat or video`
+  String get onboardingStep2Title {
+    return Intl.message(
+      'Consult by chat or video',
+      name: 'onboardingStep2Title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe your symptoms and pay only after the pharmacist accepts. Then chat freely or join a video call when they start one.`
+  String get onboardingStep2Description {
+    return Intl.message(
+      'Describe your symptoms and pay only after the pharmacist accepts. Then chat freely or join a video call when they start one.',
+      name: 'onboardingStep2Description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your prescription and\nhealth, in one place`
+  String get onboardingStep3Title {
+    return Intl.message(
+      'Your prescription and\nhealth, in one place',
+      name: 'onboardingStep3Title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep allergies, conditions and medications up to date. You decide when a pharmacist can see them.`
+  String get onboardingStep3Description {
+    return Intl.message(
+      'Keep allergies, conditions and medications up to date. You decide when a pharmacist can see them.',
+      name: 'onboardingStep3Description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search pharmacist`
+  String get pharmacistMockupSearchHint {
+    return Intl.message(
+      'Search pharmacist',
+      name: 'pharmacistMockupSearchHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get pharmacistMockupFilterAll {
+    return Intl.message(
+      'All',
+      name: 'pharmacistMockupFilterAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clinical`
+  String get pharmacistMockupFilterClinical {
+    return Intl.message(
+      'Clinical',
+      name: 'pharmacistMockupFilterClinical',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Herbal`
+  String get pharmacistMockupFilterHerbal {
+    return Intl.message(
+      'Herbal',
+      name: 'pharmacistMockupFilterHerbal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dr. Mariam Adel`
+  String get pharmacistMockupName1 {
+    return Intl.message(
+      'Dr. Mariam Adel',
+      name: 'pharmacistMockupName1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MA`
+  String get pharmacistMockupInitials1 {
+    return Intl.message(
+      'MA',
+      name: 'pharmacistMockupInitials1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clinical Pharmacy`
+  String get pharmacistMockupSpecialty1 {
+    return Intl.message(
+      'Clinical Pharmacy',
+      name: 'pharmacistMockupSpecialty1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `150`
+  String get pharmacistMockupPrice1 {
+    return Intl.message(
+      '150',
+      name: 'pharmacistMockupPrice1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `EGP`
+  String get pharmacistMockupCurrency {
+    return Intl.message(
+      'EGP',
+      name: 'pharmacistMockupCurrency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dr. Youssef Ali`
+  String get pharmacistMockupName2 {
+    return Intl.message(
+      'Dr. Youssef Ali',
+      name: 'pharmacistMockupName2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `YA`
+  String get pharmacistMockupInitials2 {
+    return Intl.message(
+      'YA',
+      name: 'pharmacistMockupInitials2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Herbal & Complementary`
+  String get pharmacistMockupSpecialty2 {
+    return Intl.message(
+      'Herbal & Complementary',
+      name: 'pharmacistMockupSpecialty2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `120`
+  String get pharmacistMockupPrice2 {
+    return Intl.message(
+      '120',
+      name: 'pharmacistMockupPrice2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `NS`
+  String get pharmacistMockupSkeletonInitials {
+    return Intl.message(
+      'NS',
+      name: 'pharmacistMockupSkeletonInitials',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available`
+  String get pharmacistMockupAvailable {
+    return Intl.message(
+      'Available',
+      name: 'pharmacistMockupAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MA`
+  String get chatMockupPharmacistInitials {
+    return Intl.message(
+      'MA',
+      name: 'chatMockupPharmacistInitials',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dr. Mariam Adel`
+  String get chatMockupPharmacistName {
+    return Intl.message(
+      'Dr. Mariam Adel',
+      name: 'chatMockupPharmacistName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active chat`
+  String get chatMockupActiveStatus {
+    return Intl.message(
+      'Active chat',
+      name: 'chatMockupActiveStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paid`
+  String get chatMockupPaidStatus {
+    return Intl.message(
+      'Paid',
+      name: 'chatMockupPaidStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payment completed · chat opened`
+  String get chatMockupPaymentBanner {
+    return Intl.message(
+      'Payment completed · chat opened',
+      name: 'chatMockupPaymentBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I've had trouble sleeping for about two weeks.`
+  String get chatMockupPatientMessage {
+    return Intl.message(
+      'I\'ve had trouble sleeping for about two weeks.',
+      name: 'chatMockupPatientMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thanks for sharing. Are you taking any medication at the moment?`
+  String get chatMockupPharmacistMessage {
+    return Intl.message(
+      'Thanks for sharing. Are you taking any medication at the moment?',
+      name: 'chatMockupPharmacistMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Incoming video call`
+  String get chatMockupIncomingCallTitle {
+    return Intl.message(
+      'Incoming video call',
+      name: 'chatMockupIncomingCallTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dr. Mariam is calling...`
+  String get chatMockupIncomingCallSubtitle {
+    return Intl.message(
+      'Dr. Mariam is calling...',
+      name: 'chatMockupIncomingCallSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Join`
+  String get chatMockupJoinAction {
+    return Intl.message(
+      'Join',
+      name: 'chatMockupJoinAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Herbal prescription`
+  String get prescriptionMockupTitle {
+    return Intl.message(
+      'Herbal prescription',
+      name: 'prescriptionMockupTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `RX-2026-00142`
+  String get prescriptionMockupCode {
+    return Intl.message(
+      'RX-2026-00142',
+      name: 'prescriptionMockupCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PDF`
+  String get prescriptionMockupPdf {
+    return Intl.message(
+      'PDF',
+      name: 'prescriptionMockupPdf',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chamomile`
+  String get prescriptionMockupHerb1 {
+    return Intl.message(
+      'Chamomile',
+      name: 'prescriptionMockupHerb1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1 cup · twice daily`
+  String get prescriptionMockupDose1 {
+    return Intl.message(
+      '1 cup · twice daily',
+      name: 'prescriptionMockupDose1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lemon balm`
+  String get prescriptionMockupHerb2 {
+    return Intl.message(
+      'Lemon balm',
+      name: 'prescriptionMockupHerb2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1 cup · at night`
+  String get prescriptionMockupDose2 {
+    return Intl.message(
+      '1 cup · at night',
+      name: 'prescriptionMockupDose2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `CLINICAL SUMMARY`
+  String get prescriptionMockupClinicalSummary {
+    return Intl.message(
+      'CLINICAL SUMMARY',
+      name: 'prescriptionMockupClinicalSummary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allergies`
+  String get prescriptionMockupAllergies {
+    return Intl.message(
+      'Allergies',
+      name: 'prescriptionMockupAllergies',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Conditions`
+  String get prescriptionMockupConditions {
+    return Intl.message(
+      'Conditions',
+      name: 'prescriptionMockupConditions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Medications`
+  String get prescriptionMockupMedications {
+    return Intl.message(
+      'Medications',
+      name: 'prescriptionMockupMedications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share my summary with this pharmacist`
+  String get prescriptionMockupShareSummary {
+    return Intl.message(
+      'Share my summary with this pharmacist',
+      name: 'prescriptionMockupShareSummary',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
