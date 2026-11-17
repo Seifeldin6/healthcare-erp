@@ -564,6 +564,66 @@ class S {
       args: [],
     );
   }
+
+  /// `اختر لغتك`
+  String get chooseLanguageTitleAr {
+    return Intl.message(
+      'اختر لغتك',
+      name: 'chooseLanguageTitleAr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose your language`
+  String get chooseLanguageTitleEn {
+    return Intl.message(
+      'Choose your language',
+      name: 'chooseLanguageTitleEn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `العربية`
+  String get languageArabicOption {
+    return Intl.message(
+      'العربية',
+      name: 'languageArabicOption',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `English`
+  String get languageEnglishOption {
+    return Intl.message(
+      'English',
+      name: 'languageEnglishOption',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `يمكنك تغيير اللغة لاحقًا من الإعدادات`
+  String get chooseLanguageHintAr {
+    return Intl.message(
+      'يمكنك تغيير اللغة لاحقًا من الإعدادات',
+      name: 'chooseLanguageHintAr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can change it later in Settings`
+  String get chooseLanguageHintEn {
+    return Intl.message(
+      'You can change it later in Settings',
+      name: 'chooseLanguageHintEn',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

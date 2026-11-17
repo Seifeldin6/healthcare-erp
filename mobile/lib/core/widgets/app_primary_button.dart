@@ -9,6 +9,9 @@ class AppPrimaryButton extends StatelessWidget {
   final IconData? suffixIcon;
   final IconData? prefixIcon;
   final bool isLoading;
+  final Color? backgroundColor;
+  final TextStyle? textStyle;
+  final BorderSide? borderSide;
 
   const AppPrimaryButton({
     super.key,
@@ -17,19 +20,31 @@ class AppPrimaryButton extends StatelessWidget {
     this.suffixIcon,
     this.prefixIcon,
     this.isLoading = false,
+    this.backgroundColor,
+    this.textStyle,
+    this.borderSide,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveTextStyle = textStyle ?? AppTextStyles.body20WhiteSemiBold;
+    final iconColor = effectiveTextStyle.color ?? Colors.white;
+
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
+      style: (backgroundColor != null || borderSide != null)
+          ? ElevatedButton.styleFrom(
+              backgroundColor: backgroundColor,
+              side: borderSide,
+            )
+          : null,
       child: isLoading
           ? SizedBox(
               width: 22.w,
               height: 22.w,
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: Colors.white,
+                color: iconColor,
               ),
             )
           : Row(
@@ -37,13 +52,13 @@ class AppPrimaryButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (prefixIcon != null) ...[
-                  Icon(prefixIcon, size: 18.sp, color: Colors.white),
+                  Icon(prefixIcon, size: 18.sp, color: iconColor),
                   SizedBox(width: AppDimensions.spacing8.w),
                 ],
-                Text(text, style: AppTextStyles.body20WhiteSemiBold),
+                Text(text, style: effectiveTextStyle),
                 if (suffixIcon != null) ...[
                   SizedBox(width: AppDimensions.spacing8.w),
-                  Icon(suffixIcon, size: 18.sp, color: Colors.white),
+                  Icon(suffixIcon, size: 18.sp, color: iconColor),
                 ],
               ],
             ),

@@ -52,5 +52,11 @@
     "prescriptionMockupAllergies": "Allergies",
     "prescriptionMockupConditions": "Conditions",
     "prescriptionMockupMedications": "Medications",
-    "prescriptionMockupShareSummary": "Share my summary with this pharmacist"
+    "prescriptionMockupShareSummary": "Share my summary with this pharmacist",
+    "chooseLanguageTitleAr": "اختر لغتك",
+    "chooseLanguageTitleEn": "Choose your language",
+    "languageArabicOption": "العربية",
+    "languageEnglishOption": "English",
+    "chooseLanguageHintAr": "يمكنك تغيير اللغة لاحقًا من الإعدادات",
+    "chooseLanguageHintEn": "You can change it later in Settings"
 }

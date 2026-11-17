@@ -44,6 +44,12 @@ abstract final class AppTextStyles {
   // Display & Titles
   static TextStyle display30InkBold = display.copyWith(color: AppColors.ink);
   static TextStyle title26InkBold = title.copyWith(color: AppColors.ink);
+  static TextStyle title24InkBold = TextStyle(
+    fontSize: 24.sp,
+    height: 34 / 24,
+    fontWeight: FontWeightHelper.bold,
+    color: AppColors.ink,
+  );
   static TextStyle heading18InkSemiBold = heading.copyWith(
     color: AppColors.ink,
   );
@@ -77,6 +83,13 @@ abstract final class AppTextStyles {
     fontSize: 16.sp,
     fontWeight: FontWeightHelper.bold,
     color: AppColors.warmInk,
+  );
+
+  static TextStyle body16MutedSemiBold = TextStyle(
+    fontSize: 16.sp,
+    height: 22 / 16,
+    fontWeight: FontWeightHelper.semiBold,
+    color: AppColors.muted,
   );
 
   // Label (15.sp & 14.sp)

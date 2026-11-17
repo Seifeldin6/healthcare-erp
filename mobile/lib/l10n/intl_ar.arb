@@ -52,5 +52,11 @@
     "prescriptionMockupAllergies": "الحساسية",
     "prescriptionMockupConditions": "الأمراض المزمنة",
     "prescriptionMockupMedications": "الأدوية الحالية",
-    "prescriptionMockupShareSummary": "مشاركة ملخصي مع الصيدلي"
+    "prescriptionMockupShareSummary": "مشاركة ملخصي مع الصيدلي",
+    "chooseLanguageTitleAr": "اختر لغتك",
+    "chooseLanguageTitleEn": "Choose your language",
+    "languageArabicOption": "العربية",
+    "languageEnglishOption": "English",
+    "chooseLanguageHintAr": "يمكنك تغيير اللغة لاحقًا من الإعدادات",
+    "chooseLanguageHintEn": "You can change it later in Settings"
 }
