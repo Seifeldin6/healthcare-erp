@@ -90,7 +90,7 @@ class ChooseLanguageSheet extends StatelessWidget {
         ],
       ),
     ).animate().slideY(
-      begin: 0.25,
+      begin: 0.30,
       end: 0,
       duration: 450.ms,
       curve: Curves.easeOutCubic,
