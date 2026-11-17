@@ -24,6 +24,120 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "appName": MessageLookupByLibrary.simpleMessage("شفاء"),
     "appNameSecondary": MessageLookupByLibrary.simpleMessage("Shifa"),
+    "chatMockupActiveStatus": MessageLookupByLibrary.simpleMessage(
+      "محادثة نشطة",
+    ),
+    "chatMockupIncomingCallSubtitle": MessageLookupByLibrary.simpleMessage(
+      "د. مريم تتصل بك...",
+    ),
+    "chatMockupIncomingCallTitle": MessageLookupByLibrary.simpleMessage(
+      "مكالمة فيديو واردة",
+    ),
+    "chatMockupJoinAction": MessageLookupByLibrary.simpleMessage("انضمام"),
+    "chatMockupPaidStatus": MessageLookupByLibrary.simpleMessage("تم الدفع"),
+    "chatMockupPatientMessage": MessageLookupByLibrary.simpleMessage(
+      "أعاني من صعوبة في النوم منذ أسبوعين تقريبًا.",
+    ),
+    "chatMockupPaymentBanner": MessageLookupByLibrary.simpleMessage(
+      "تم الدفع · فُتحت المحادثة",
+    ),
+    "chatMockupPharmacistInitials": MessageLookupByLibrary.simpleMessage("م"),
+    "chatMockupPharmacistMessage": MessageLookupByLibrary.simpleMessage(
+      "شكرًا لمشاركتك. هل تتناول أي أدوية حاليًا؟",
+    ),
+    "chatMockupPharmacistName": MessageLookupByLibrary.simpleMessage(
+      "د. مريم عادل",
+    ),
+    "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
+      "لديّ حساب بالفعل",
+    ),
+    "onboardingCreateAccount": MessageLookupByLibrary.simpleMessage(
+      "إنشاء حساب",
+    ),
+    "onboardingNext": MessageLookupByLibrary.simpleMessage("التالي"),
+    "onboardingSignIn": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
+    "onboardingSkip": MessageLookupByLibrary.simpleMessage("تخطي"),
+    "onboardingStep1Description": MessageLookupByLibrary.simpleMessage(
+      "تصفّح صيادلة الصيدلة الإكلينيكية والطب العشبي، واعرف المتاح منهم الآن وتكلفة الاستشارة.",
+    ),
+    "onboardingStep1Title": MessageLookupByLibrary.simpleMessage(
+      "اعثر على صيدلي موثّق",
+    ),
+    "onboardingStep2Description": MessageLookupByLibrary.simpleMessage(
+      "صِف أعراضك وادفع فقط بعد قبول الصيدلي لطلبك. ثم تحدّث معه مباشرة، وانضم لمكالمة الفيديو عندما يبدأها.",
+    ),
+    "onboardingStep2Title": MessageLookupByLibrary.simpleMessage(
+      "استشارة بالمحادثة أو الفيديو",
+    ),
+    "onboardingStep3Description": MessageLookupByLibrary.simpleMessage(
+      "حدّث الحساسية والأمراض والأدوية أولًا بأول، وأنت من يقرر متى يطّلع عليها الصيدلي.",
+    ),
+    "onboardingStep3Title": MessageLookupByLibrary.simpleMessage(
+      "وصفتك وصحتك في مكان\nواحد",
+    ),
+    "pharmacistMockupAvailable": MessageLookupByLibrary.simpleMessage("متاح"),
+    "pharmacistMockupCurrency": MessageLookupByLibrary.simpleMessage("ج.م"),
+    "pharmacistMockupFilterAll": MessageLookupByLibrary.simpleMessage("الكل"),
+    "pharmacistMockupFilterClinical": MessageLookupByLibrary.simpleMessage(
+      "إكلينيكية",
+    ),
+    "pharmacistMockupFilterHerbal": MessageLookupByLibrary.simpleMessage(
+      "عشبية",
+    ),
+    "pharmacistMockupInitials1": MessageLookupByLibrary.simpleMessage("م"),
+    "pharmacistMockupInitials2": MessageLookupByLibrary.simpleMessage("ي"),
+    "pharmacistMockupName1": MessageLookupByLibrary.simpleMessage(
+      "د. مريم عادل",
+    ),
+    "pharmacistMockupName2": MessageLookupByLibrary.simpleMessage(
+      "د. يوسف علي",
+    ),
+    "pharmacistMockupPrice1": MessageLookupByLibrary.simpleMessage("150"),
+    "pharmacistMockupPrice2": MessageLookupByLibrary.simpleMessage("120"),
+    "pharmacistMockupSearchHint": MessageLookupByLibrary.simpleMessage(
+      "ابحث عن صيدلي",
+    ),
+    "pharmacistMockupSkeletonInitials": MessageLookupByLibrary.simpleMessage(
+      "ن",
+    ),
+    "pharmacistMockupSpecialty1": MessageLookupByLibrary.simpleMessage(
+      "الصيدلة الإكلينيكية",
+    ),
+    "pharmacistMockupSpecialty2": MessageLookupByLibrary.simpleMessage(
+      "الطب العشبي والتكميلي",
+    ),
+    "prescriptionMockupAllergies": MessageLookupByLibrary.simpleMessage(
+      "الحساسية",
+    ),
+    "prescriptionMockupClinicalSummary": MessageLookupByLibrary.simpleMessage(
+      "الملخص الصحي",
+    ),
+    "prescriptionMockupCode": MessageLookupByLibrary.simpleMessage(
+      "RX-2026-00142",
+    ),
+    "prescriptionMockupConditions": MessageLookupByLibrary.simpleMessage(
+      "الأمراض المزمنة",
+    ),
+    "prescriptionMockupDose1": MessageLookupByLibrary.simpleMessage(
+      "كوب واحد · مرتين يوميًا",
+    ),
+    "prescriptionMockupDose2": MessageLookupByLibrary.simpleMessage(
+      "كوب واحد · قبل النوم",
+    ),
+    "prescriptionMockupHerb1": MessageLookupByLibrary.simpleMessage("بابونج"),
+    "prescriptionMockupHerb2": MessageLookupByLibrary.simpleMessage(
+      "بلسم الليمون",
+    ),
+    "prescriptionMockupMedications": MessageLookupByLibrary.simpleMessage(
+      "الأدوية الحالية",
+    ),
+    "prescriptionMockupPdf": MessageLookupByLibrary.simpleMessage("PDF"),
+    "prescriptionMockupShareSummary": MessageLookupByLibrary.simpleMessage(
+      "مشاركة ملخصي مع الصيدلي",
+    ),
+    "prescriptionMockupTitle": MessageLookupByLibrary.simpleMessage(
+      "وصفة عشبية",
+    ),
     "splashFooterAr": MessageLookupByLibrary.simpleMessage("صيدلية عن بُعد"),
     "splashFooterEn": MessageLookupByLibrary.simpleMessage("TELE-PHARMACY"),
     "splashTagline": MessageLookupByLibrary.simpleMessage(

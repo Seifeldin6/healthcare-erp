@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/routing/routes.dart';
 import 'package:healthcare_app/core/theme/app_colors.dart';
 
 import '../widgets/splash_footer.dart';
@@ -26,9 +27,11 @@ class _SplashScreenState extends State<SplashScreen> {
     _start();
   }
 
+
   Future<void> _start() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 4000));
     if (!mounted) return;
+    Navigator.pushReplacementNamed(context, Routes.onBoardingScreen);
   }
 
   @override

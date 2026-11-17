@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/routing/app_router.dart';
+import 'package:healthcare_app/core/routing/routes.dart';
 import 'package:healthcare_app/core/theme/light_theme.dart';
-import 'package:healthcare_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class HealthcareApp extends StatelessWidget {
-  const HealthcareApp({super.key});
+  final AppRouter appRouter;
+  const HealthcareApp({super.key, required this.appRouter});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class HealthcareApp extends StatelessWidget {
           value: SystemUiOverlayStyle.light,
           child: child!,
         ),
+        locale: const Locale('ar'),
         localizationsDelegates: const [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -30,7 +33,8 @@ class HealthcareApp extends StatelessWidget {
 
         supportedLocales: S.delegate.supportedLocales,
         theme: LightTheme.theme,
-        home: const SplashScreen(),
+        initialRoute: Routes.splashScreen,
+        onGenerateRoute: appRouter.generateRoute,
       ),
     );
   }
