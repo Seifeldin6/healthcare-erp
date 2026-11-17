@@ -48,6 +48,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "chatMockupPharmacistName": MessageLookupByLibrary.simpleMessage(
       "د. مريم عادل",
     ),
+    "chooseLanguageHintAr": MessageLookupByLibrary.simpleMessage(
+      "يمكنك تغيير اللغة لاحقًا من الإعدادات",
+    ),
+    "chooseLanguageHintEn": MessageLookupByLibrary.simpleMessage(
+      "You can change it later in Settings",
+    ),
+    "chooseLanguageTitleAr": MessageLookupByLibrary.simpleMessage("اختر لغتك"),
+    "chooseLanguageTitleEn": MessageLookupByLibrary.simpleMessage(
+      "Choose your language",
+    ),
+    "languageArabicOption": MessageLookupByLibrary.simpleMessage("العربية"),
+    "languageEnglishOption": MessageLookupByLibrary.simpleMessage("English"),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
       "لديّ حساب بالفعل",
     ),

@@ -27,11 +27,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _start();
   }
 
-
   Future<void> _start() async {
     await Future.delayed(const Duration(milliseconds: 4000));
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, Routes.onBoardingScreen);
+    Navigator.pushReplacementNamed(context, Routes.chooseLanguageScreen);
   }
 
   @override

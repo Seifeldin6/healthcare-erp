@@ -33,4 +33,6 @@ abstract final class AppColors {
   static const Color allergyText = Color(0xFF9A2A1E);
   static const Color conditionBg = Color(0xFFEEF1F7);
   static const Color conditionText = Color(0xFF33507A);
+
+  static const Color languageOptionBg = Color(0xFFF7FAF9);
 }
