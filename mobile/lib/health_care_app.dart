@@ -23,7 +23,7 @@ class HealthcareApp extends StatelessWidget {
           value: SystemUiOverlayStyle.light,
           child: child!,
         ),
-        locale: const Locale('ar'),
+        locale: const Locale('en'),
         localizationsDelegates: const [
           S.delegate,
           GlobalMaterialLocalizations.delegate,

@@ -57,7 +57,7 @@ class IncomingVideoCallCard extends StatelessWidget {
               vertical: AppDimensions.spacing8.h,
             ),
             decoration: BoxDecoration(
-              color: AppColors.callIconMint,
+              color: AppColors.callJoinGreen,
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Text(

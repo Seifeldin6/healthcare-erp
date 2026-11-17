@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:healthcare_app/core/theme/app_colors.dart';
 import 'package:healthcare_app/core/theme/app_dimensions.dart';
 import 'package:healthcare_app/core/theme/app_text_styles.dart';
@@ -22,19 +23,10 @@ class PrescriptionDetailsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
+              SvgPicture.asset(
+                'assets/onboarding/herbal_leaf_icon.svg',
                 width: 40.w,
                 height: 40.w,
-                decoration: BoxDecoration(
-                  color: AppColors.warmTint,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.eco_outlined,
-                  size: 20.sp,
-                  color: AppColors.warmInk,
-                ),
               ),
               SizedBox(width: AppDimensions.spacing12.w),
               Expanded(
