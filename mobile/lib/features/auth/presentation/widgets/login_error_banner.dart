@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/theme/app_colors.dart';
+import 'package:healthcare_app/core/theme/app_dimensions.dart';
+import 'package:healthcare_app/core/theme/app_text_styles.dart';
+import 'package:healthcare_app/generated/l10n.dart';
+
+class LoginErrorBanner extends StatelessWidget {
+  const LoginErrorBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(AppDimensions.spacing16.w),
+      decoration: BoxDecoration(
+        color: AppColors.errorTint,
+        borderRadius: BorderRadius.circular(AppDimensions.cardRadius.r),
+        border: Border.all(color: AppColors.errorBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.error,
+            size: 20.sp,
+          ),
+          SizedBox(width: AppDimensions.spacing12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.loginErrorTitle,
+                  style: AppTextStyles.label14InkBold.copyWith(
+                    color: AppColors.error,
+                  ),
+                ),
+                SizedBox(height: AppDimensions.spacing4.h),
+                Text(
+                  s.loginErrorDescription,
+                  style: AppTextStyles.caption13MutedRegular.copyWith(
+                    color: AppColors.error,
+                    height: 18 / 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

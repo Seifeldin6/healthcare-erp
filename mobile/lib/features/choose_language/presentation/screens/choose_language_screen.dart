@@ -13,7 +13,7 @@ class ChooseLanguageScreen extends StatelessWidget {
   void _onLanguageChosen(BuildContext context, String languageCode) async {
     await context.read<LocaleCubit>().changeLocale(languageCode);
     if (!context.mounted) return;
-    context.pushReplacementNamed(Routes.splashScreen);
+    context.pushReplacementNamed(Routes.onBoardingScreen);
   }
 
   @override

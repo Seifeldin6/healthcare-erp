@@ -58,8 +58,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "chooseLanguageTitleEn": MessageLookupByLibrary.simpleMessage(
       "Choose your language",
     ),
+    "createAccount": MessageLookupByLibrary.simpleMessage("Create account"),
+    "emailOrPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "name@example.com or +20...",
+    ),
+    "emailOrPhoneLabel": MessageLookupByLibrary.simpleMessage(
+      "Email or phone number",
+    ),
+    "emailOrPhoneLtrHelper": MessageLookupByLibrary.simpleMessage(""),
+    "emailOrPhoneRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your email or phone number",
+    ),
     "languageArabicOption": MessageLookupByLibrary.simpleMessage("العربية"),
     "languageEnglishOption": MessageLookupByLibrary.simpleMessage("English"),
+    "loginButton": MessageLookupByLibrary.simpleMessage("Log in"),
+    "loginErrorDescription": MessageLookupByLibrary.simpleMessage(
+      "The email, phone number or password is incorrect. Check them and try again.",
+    ),
+    "loginErrorTitle": MessageLookupByLibrary.simpleMessage(
+      "We couldn\'t log you in",
+    ),
+    "loginWelcomeSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Log in to follow your consultations and manage your health summary.",
+    ),
+    "loginWelcomeTitle": MessageLookupByLibrary.simpleMessage("Welcome back"),
+    "newToShifa": MessageLookupByLibrary.simpleMessage("New to Shifa? "),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
       "Already have an account?",
     ),
@@ -86,6 +109,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "onboardingStep3Title": MessageLookupByLibrary.simpleMessage(
       "Your prescription and\nhealth, in one place",
+    ),
+    "passwordHint": MessageLookupByLibrary.simpleMessage("Enter your password"),
+    "passwordLabel": MessageLookupByLibrary.simpleMessage("Password"),
+    "passwordRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your password",
+    ),
+    "patientPortalNotice": MessageLookupByLibrary.simpleMessage(
+      "This app is for patients. Pharmacists sign in through the web portal.",
     ),
     "pharmacistMockupAvailable": MessageLookupByLibrary.simpleMessage(
       "Available",
@@ -159,5 +190,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "splashTagline": MessageLookupByLibrary.simpleMessage(
       "Trusted pharmacy care, wherever you are.",
     ),
+    "tryAgainButton": MessageLookupByLibrary.simpleMessage("Try again"),
   };
 }

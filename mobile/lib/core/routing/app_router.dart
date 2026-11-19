@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:healthcare_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:healthcare_app/features/choose_language/presentation/screens/choose_language_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
@@ -13,6 +14,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case Routes.chooseLanguageScreen:
         return MaterialPageRoute(builder: (_) => const ChooseLanguageScreen());
+      case Routes.loginScreen:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
       default:
         return null;
     }

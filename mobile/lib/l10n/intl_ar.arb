@@ -58,5 +58,21 @@
     "languageArabicOption": "العربية",
     "languageEnglishOption": "English",
     "chooseLanguageHintAr": "يمكنك تغيير اللغة لاحقًا من الإعدادات",
-    "chooseLanguageHintEn": "You can change it later in Settings"
+    "chooseLanguageHintEn": "You can change it later in Settings",
+    "loginWelcomeTitle": "مرحبًا بعودتك",
+    "loginWelcomeSubtitle": "سجّل الدخول لمتابعة استشاراتك وإدارة ملخصك الصحي.",
+    "emailOrPhoneLabel": "البريد الإلكتروني أو رقم الهاتف",
+    "emailOrPhoneHint": "name@example.com",
+    "emailOrPhoneLtrHelper": "يُكتب البريد ورقم الهاتف من اليسار إلى اليمين.",
+    "passwordLabel": "كلمة المرور",
+    "passwordHint": "••••••••",
+    "loginButton": "تسجيل الدخول",
+    "tryAgainButton": "حاول مرة أخرى",
+    "loginErrorTitle": "تعذّر تسجيل الدخول",
+    "loginErrorDescription": "البريد الإلكتروني أو رقم الهاتف أو كلمة المرور غير صحيحة. تحقّق منها وحاول مرة أخرى.",
+    "patientPortalNotice": "هذا التطبيق مخصص للمرضى. يسجّل الصيادلة الدخول عبر بوابة الويب.",
+    "newToShifa": "جديد على شفاء؟ ",
+    "createAccount": "إنشاء حساب",
+    "emailOrPhoneRequiredError": "يرجى إدخال البريد الإلكتروني أو رقم الهاتف",
+    "passwordRequiredError": "يرجى إدخال كلمة المرور"
 }

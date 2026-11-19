@@ -58,5 +58,21 @@
     "languageArabicOption": "العربية",
     "languageEnglishOption": "English",
     "chooseLanguageHintAr": "يمكنك تغيير اللغة لاحقًا من الإعدادات",
-    "chooseLanguageHintEn": "You can change it later in Settings"
+    "chooseLanguageHintEn": "You can change it later in Settings",
+    "loginWelcomeTitle": "Welcome back",
+    "loginWelcomeSubtitle": "Log in to follow your consultations and manage your health summary.",
+    "emailOrPhoneLabel": "Email or phone number",
+    "emailOrPhoneHint": "name@example.com or +20...",
+    "emailOrPhoneLtrHelper": "",
+    "passwordLabel": "Password",
+    "passwordHint": "Enter your password",
+    "loginButton": "Log in",
+    "tryAgainButton": "Try again",
+    "loginErrorTitle": "We couldn't log you in",
+    "loginErrorDescription": "The email, phone number or password is incorrect. Check them and try again.",
+    "patientPortalNotice": "This app is for patients. Pharmacists sign in through the web portal.",
+    "newToShifa": "New to Shifa? ",
+    "createAccount": "Create account",
+    "emailOrPhoneRequiredError": "Please enter your email or phone number",
+    "passwordRequiredError": "Please enter your password"
 }
