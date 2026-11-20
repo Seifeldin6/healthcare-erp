@@ -855,3 +855,53 @@ class VideoCallService {
   }
 }
 ```
+
+---
+
+## 7. Error Codes Reference Table
+
+All API errors return a standardized JSON structure:
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "Please describe your main complaint and symptoms.",
+  "errors": null,
+  "traceId": "0HN1234567890"
+}
+```
+
+Frontend (React) and Mobile (Flutter) applications should map the machine-readable `code` directly in their localization files (`ar.json`, `en.json`).
+
+| Code | HTTP Status | Default English Message | When It Occurs |
+|---|---|---|---|
+| `BAD_REQUEST` | 400 | The submitted request is invalid. | Generic malformed request or invalid route parameters. |
+| `VALIDATION_ERROR` | 400 / 422 | One or more validation errors occurred. | Business or input validation failure (e.g. empty required fields, invalid prescription duration). |
+| `INVALID_DATA_FORMAT` | 400 | The submitted data format is invalid. | Malformed JSON in request payload or unparseable JSON fields. |
+| `INVALID_AMOUNT` | 400 | Payment amount must be greater than zero. | Checkout or payment requested with non-positive amount. |
+| `INVALID_PATIENT_IDENTITY` | 400 | Unable to determine patient identity. | Token lacks required patient identifier claim when initiating consultation. |
+| `PHARMACIST_UNAVAILABLE` | 400 | This pharmacist is currently unavailable for new consultations. | Consultation requested with pharmacist who is unapproved or set to unavailable. |
+| `PHARMACIST_NOT_APPROVED` | 400 | Only approved pharmacists can accept consultation requests. | Pharmacist attempts to set availability before license verification is approved. |
+| `INVALID_CREDENTIALS` | 401 | Invalid email or password. | Login attempt with invalid username/email or incorrect password. |
+| `SESSION_EXPIRED` | 401 | Your session has expired. Please sign in again. | Missing, expired, or invalid Bearer JWT, or missing authentication claims. |
+| `FORBIDDEN` | 403 | You do not have permission to perform this action. | Access control failure or IDOR violation (e.g. patient accessing another patient's record). |
+| `ACCOUNT_DEACTIVATED` | 403 | Your account has been deactivated. Please contact support. | Login attempt by a user whose account is inactive (`IsActive = false`). |
+| `RESOURCE_NOT_FOUND` | 404 | The requested resource was not found. | General resource lookup failure or unmatched endpoint route. |
+| `PATIENT_NOT_FOUND` | 404 | Patient profile could not be found. | Patient record does not exist for the specified identifier. |
+| `CLINICAL_SUMMARY_NOT_FOUND` | 404 | Clinical summary could not be found. | Patient clinical summary record does not exist. |
+| `PHARMACIST_NOT_FOUND` | 404 | Pharmacist profile could not be found. | Pharmacist profile record does not exist for the specified identifier. |
+| `HERB_NOT_FOUND` | 404 | The requested herb could not be found. | Herb catalog entry does not exist for the given ID. |
+| `CONSULTATION_NOT_FOUND` | 404 | The requested consultation could not be found. | Consultation record does not exist for the given ID. |
+| `CHAT_ROOM_NOT_FOUND` | 404 | Chat room could not be found for this consultation. | Consultation has no active or associated chat room. |
+| `CONFLICT` | 409 | A conflict occurred with the current state of the resource. | Generic entity state conflict. |
+| `EMAIL_ALREADY_EXISTS` | 409 | This email address is already registered. | Registration attempt with an email that is already registered. |
+| `NATIONAL_ID_ALREADY_EXISTS` | 409 | This national ID is already registered. | Patient registration attempt with a duplicate National ID. |
+| `LICENSE_ALREADY_EXISTS` | 409 | This syndicate license number is already registered. | Pharmacist registration attempt with a duplicate syndicate license number. |
+| `INVALID_STATUS_TRANSITION` | 409 | This action cannot be completed in the current status. | Lifecycle state machine guard failure (e.g. accepting non-pending, video before active chat, paying unaccepted). |
+| `CONSULTATION_EXPIRED` | 409 | This consultation request has expired. | Attempting to accept a consultation whose expiration window has passed. |
+| `METHOD_NOT_ALLOWED` | 405 | The requested HTTP method is not allowed for this endpoint. | HTTP method is not supported by the requested endpoint route. |
+| `UNSUPPORTED_MEDIA_TYPE` | 415 | The submitted media format is unsupported. Please use application/json. | Content-Type header is not `application/json`. |
+| `INTERNAL_ERROR` | 500 | Something went wrong on our end. Please try again later. | Unhandled server error (stack trace and sensitive details suppressed outside Development). |
+

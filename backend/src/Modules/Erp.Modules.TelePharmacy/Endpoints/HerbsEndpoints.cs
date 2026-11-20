@@ -19,13 +19,13 @@ public static class HerbsEndpoints
             .RequireAuthorization()
             .WithName("GetHerbs")
             .Produces<PagedResult<HerbResponse>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized);
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/{id:guid}", GetHerbById)
             .RequireAuthorization()
             .WithName("GetHerbById")
             .Produces<HerbResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/", CreateHerb)
@@ -33,8 +33,8 @@ public static class HerbsEndpoints
             .WithName("CreateHerb")
             .Produces<HerbResponse>(StatusCodes.Status201Created)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden);
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden);
 
         return app;
     }
@@ -80,6 +80,7 @@ public static class HerbsEndpoints
     private static async Task<IResult> GetHerbById(
         Guid id,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var herb = await db.HerbsCatalog
@@ -97,7 +98,7 @@ public static class HerbsEndpoints
             .FirstOrDefaultAsync(ct);
 
         if (herb is null)
-            return Results.NotFound(new ErrorResponse("Herb not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested herb could not be found.", code: "HERB_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         return Results.Ok(herb);
     }
@@ -105,13 +106,14 @@ public static class HerbsEndpoints
     private static async Task<IResult> CreateHerb(
         CreateHerbRequest request,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(request.ScientificName) ||
             string.IsNullOrWhiteSpace(request.EnglishCommonName) ||
             string.IsNullOrWhiteSpace(request.ArabicCommonName))
         {
-            return Results.BadRequest(new ErrorResponse("Scientific name, English common name, and Arabic common name are required."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Please provide the scientific name, English common name, and Arabic common name.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
         }
 
         var contraindications = string.IsNullOrWhiteSpace(request.ContraindicationsJson) ? "[]" : request.ContraindicationsJson;

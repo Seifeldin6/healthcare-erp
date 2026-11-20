@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json;
 using Erp.Modules.TelePharmacy.Data;
 using Erp.Modules.TelePharmacy.Entities;
@@ -17,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Erp.Modules.TelePharmacy.Endpoints;
 
-public static class ConsultationEndpoints
+public static partial class ConsultationEndpoints
 {
     public static IEndpointRouteBuilder MapConsultationEndpoints(this IEndpointRouteBuilder app)
     {
@@ -28,15 +27,15 @@ public static class ConsultationEndpoints
             .WithName("CreateConsultation")
             .Produces<ConsultationResponse>(StatusCodes.Status201Created)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/accept", AcceptConsultation)
             .RequireAuthorization("PharmacistOnly")
             .WithName("AcceptConsultation")
             .Produces<ConsultationResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
@@ -45,8 +44,8 @@ public static class ConsultationEndpoints
             .WithName("RejectConsultation")
             .Produces<ConsultationResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
@@ -55,23 +54,23 @@ public static class ConsultationEndpoints
             .WithName("GetMyConsultations")
             .Produces<PagedResult<ConsultationResponse>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapGet("/{id:guid}", GetConsultationById)
             .RequireAuthorization()
             .WithName("GetConsultationById")
             .Produces<ConsultationDetailResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/start-video", StartVideo)
             .RequireAuthorization("PharmacistOnly")
             .WithName("StartVideo")
             .Produces<StartVideoResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
@@ -79,8 +78,8 @@ public static class ConsultationEndpoints
             .RequireAuthorization("PharmacistOnly")
             .WithName("EndVideo")
             .Produces<EndVideoResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/herbal-prescription", IssueHerbalPrescription)
@@ -88,8 +87,8 @@ public static class ConsultationEndpoints
             .WithName("IssueHerbalPrescription")
             .Produces<IssueHerbalPrescriptionResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
@@ -97,8 +96,8 @@ public static class ConsultationEndpoints
             .RequireAuthorization()
             .WithName("GetConsultationMessages")
             .Produces<PagedResult<ChatMessageResponse>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
@@ -108,27 +107,28 @@ public static class ConsultationEndpoints
         CreateConsultationRequest request,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var patientId = currentUser.PatientId ?? request.PatientId;
         if (!patientId.HasValue || patientId.Value == Guid.Empty)
-            return Results.BadRequest(new ErrorResponse("Patient identifier could not be determined."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Unable to determine patient identity.", code: "INVALID_PATIENT_IDENTITY", traceId: httpContext.TraceIdentifier));
 
         if (string.IsNullOrWhiteSpace(request.ChiefComplaintAndSymptoms))
-            return Results.BadRequest(new ErrorResponse("Chief complaint and symptoms are required."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Please describe your main complaint and symptoms.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
 
         var pharmacist = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == request.PharmacistProfileId && !p.IsDeleted, ct);
 
         if (pharmacist is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The selected pharmacist could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (pharmacist.VerificationStatus != VerificationStatus.Approved || !pharmacist.IsAvailableForRequests)
-            return Results.BadRequest(new ErrorResponse("Pharmacist is not currently available for consultation requests."));
+            return Results.BadRequest(ErrorResponse.BadRequest("This pharmacist is currently unavailable for new consultations.", code: "PHARMACIST_UNAVAILABLE", traceId: httpContext.TraceIdentifier));
 
         var expiresAtUtc = DateTime.UtcNow.AddHours(request.DurationHours ?? 24);
 
@@ -152,38 +152,39 @@ public static class ConsultationEndpoints
         AcceptConsultationRequest? request,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (consultation.PharmacistProfileId != profile.Id)
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
 
         if (consultation.Status != ConsultationStatus.Pending)
         {
-            return Results.Conflict(new ErrorResponse(
-                $"Cannot accept consultation in status '{consultation.Status}'. Must be 'Pending'."));
+            return Results.Conflict(ErrorResponse.Conflict(
+                $"Cannot accept consultation in status '{consultation.Status}'. Must be 'Pending'.", code: "INVALID_STATUS_TRANSITION", traceId: httpContext.TraceIdentifier));
         }
 
         if (consultation.ExpiresAtUtc <= DateTime.UtcNow)
         {
             consultation.Expire();
             await db.SaveChangesAsync(ct);
-            return Results.Conflict(new ErrorResponse("Consultation request has expired."));
+            return Results.Conflict(ErrorResponse.Conflict("This consultation request has expired.", code: "CONSULTATION_EXPIRED", traceId: httpContext.TraceIdentifier));
         }
 
         var agreedFee = request?.Fee ?? profile.ConsultationFee;
@@ -199,34 +200,35 @@ public static class ConsultationEndpoints
         RejectConsultationRequest request,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         if (string.IsNullOrWhiteSpace(request.RejectionReason))
-            return Results.BadRequest(new ErrorResponse("Rejection reason is required."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Please provide a reason for rejecting the consultation.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (consultation.PharmacistProfileId != profile.Id)
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
 
         if (consultation.Status != ConsultationStatus.Pending)
         {
-            return Results.Conflict(new ErrorResponse(
-                $"Cannot reject consultation in status '{consultation.Status}'. Must be 'Pending'."));
+            return Results.Conflict(ErrorResponse.Conflict(
+                $"Cannot reject consultation in status '{consultation.Status}'. Must be 'Pending'.", code: "INVALID_STATUS_TRANSITION", traceId: httpContext.TraceIdentifier));
         }
 
         consultation.Reject(request.RejectionReason);
@@ -240,10 +242,11 @@ public static class ConsultationEndpoints
         ConsultationStatus? status,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var query = db.Consultations.AsNoTracking().Where(c => !c.IsDeleted);
 
@@ -251,7 +254,7 @@ public static class ConsultationEndpoints
         {
             var patientId = currentUser.PatientId;
             if (!patientId.HasValue)
-                return Results.BadRequest(new ErrorResponse("Patient claim missing from token."));
+                return Results.BadRequest(ErrorResponse.BadRequest("Your session is missing patient details. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier));
 
             query = query.Where(c => c.PatientId == patientId.Value);
         }
@@ -262,7 +265,7 @@ public static class ConsultationEndpoints
                 .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
             if (profile is null)
-                return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+                return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
             query = query.Where(c => c.PharmacistProfileId == profile.Id);
         }
@@ -297,17 +300,18 @@ public static class ConsultationEndpoints
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
         IVideoProvider videoProvider,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var consultation = await db.Consultations
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var isPatient = string.Equals(currentUser.Role, "Patient", StringComparison.OrdinalIgnoreCase);
         var isPharmacist = string.Equals(currentUser.Role, "Pharmacist", StringComparison.OrdinalIgnoreCase);
@@ -315,7 +319,7 @@ public static class ConsultationEndpoints
         if (isPatient)
         {
             if (currentUser.PatientId.HasValue && consultation.PatientId != currentUser.PatientId.Value)
-                return Results.Forbid();
+                return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
         else if (isPharmacist)
         {
@@ -324,12 +328,12 @@ public static class ConsultationEndpoints
                 .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
             if (pharmacistProfile is null || consultation.PharmacistProfileId != pharmacistProfile.Id)
-                return Results.Forbid();
+                return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
         else if (!string.Equals(currentUser.Role, "SuperAdmin", StringComparison.OrdinalIgnoreCase) &&
                  !string.Equals(currentUser.Role, "Doctor", StringComparison.OrdinalIgnoreCase))
         {
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
 
         var chatRoom = await db.ChatRooms
@@ -402,32 +406,33 @@ public static class ConsultationEndpoints
         TelePharmacyDbContext db,
         IVideoProvider videoProvider,
         IHubContext<ConsultationHub> hubContext,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (consultation.PharmacistProfileId != profile.Id)
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
 
         if (consultation.Status != ConsultationStatus.ActiveChat &&
             consultation.Status != ConsultationStatus.InVideoCall)
         {
-            return Results.Conflict(new ErrorResponse(
-                $"Cannot start video call in consultation status '{consultation.Status}'. Must be ActiveChat or InVideoCall."));
+            return Results.Conflict(ErrorResponse.Conflict(
+                $"Cannot start video call in consultation status '{consultation.Status}'. Must be ActiveChat or InVideoCall.", code: "INVALID_STATUS_TRANSITION", traceId: httpContext.TraceIdentifier));
         }
 
         var roomName = await videoProvider.CreateRoomAsync($"consultation-{consultation.Id:N}", ct);
@@ -482,26 +487,27 @@ public static class ConsultationEndpoints
         TelePharmacyDbContext db,
         IVideoProvider videoProvider,
         IHubContext<ConsultationHub> hubContext,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (consultation.PharmacistProfileId != profile.Id)
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
 
         var activeVideoSession = await db.VideoSessions
             .Where(v => v.ConsultationId == consultation.Id &&
@@ -546,36 +552,37 @@ public static class ConsultationEndpoints
         TelePharmacyDbContext db,
         IPublisher publisher,
         IHubContext<ConsultationHub> hubContext,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var consultation = await db.Consultations
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         if (consultation.PharmacistProfileId != profile.Id)
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
 
         if (consultation.Status != ConsultationStatus.ActiveChat &&
             consultation.Status != ConsultationStatus.InVideoCall)
         {
-            return Results.Conflict(new ErrorResponse(
-                $"Cannot issue herbal prescription for consultation in status '{consultation.Status}'. Must be ActiveChat or InVideoCall."));
+            return Results.Conflict(ErrorResponse.Conflict(
+                $"Cannot issue herbal prescription for consultation in status '{consultation.Status}'. Must be ActiveChat or InVideoCall.", code: "INVALID_STATUS_TRANSITION", traceId: httpContext.TraceIdentifier));
         }
 
         if (request.DurationDays <= 0)
-            return Results.BadRequest(new ErrorResponse("DurationDays must be greater than zero."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Prescription duration must be at least 1 day.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
 
         string herbsJson;
         if (request.Herbs is not null && request.Herbs.Count > 0)
@@ -591,12 +598,12 @@ public static class ConsultationEndpoints
             }
             catch (JsonException)
             {
-                return Results.BadRequest(new ErrorResponse("PrescribedHerbsJson is not valid JSON."));
+                return Results.BadRequest(ErrorResponse.BadRequest("The submitted data format is invalid.", code: "INVALID_DATA_FORMAT", traceId: httpContext.TraceIdentifier));
             }
         }
         else
         {
-            return Results.BadRequest(new ErrorResponse("Prescribed herbs must be provided."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Please add at least one herb to the prescription.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
         }
 
         var prescriptionNumber = $"RX-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..20].ToUpperInvariant();
@@ -670,17 +677,18 @@ public static class ConsultationEndpoints
         [AsParameters] PagedRequest pagedRequest,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var consultation = await db.Consultations
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, ct);
 
         if (consultation is null)
-            return Results.NotFound(new ErrorResponse("Consultation not found."));
+            return Results.NotFound(ErrorResponse.NotFound("The requested consultation could not be found.", code: "CONSULTATION_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var isPatient = string.Equals(currentUser.Role, "Patient", StringComparison.OrdinalIgnoreCase);
         var isPharmacist = string.Equals(currentUser.Role, "Pharmacist", StringComparison.OrdinalIgnoreCase);
@@ -688,7 +696,7 @@ public static class ConsultationEndpoints
         if (isPatient)
         {
             if (currentUser.PatientId.HasValue && consultation.PatientId != currentUser.PatientId.Value)
-                return Results.Forbid();
+                return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
         else if (isPharmacist)
         {
@@ -697,12 +705,12 @@ public static class ConsultationEndpoints
                 .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
             if (profile is null || consultation.PharmacistProfileId != profile.Id)
-                return Results.Forbid();
+                return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
         else if (!string.Equals(currentUser.Role, "SuperAdmin", StringComparison.OrdinalIgnoreCase) &&
                  !string.Equals(currentUser.Role, "Doctor", StringComparison.OrdinalIgnoreCase))
         {
-            return Results.Forbid();
+            return Results.Json(ErrorResponse.Forbidden("You do not have permission to perform this action.", code: "FORBIDDEN", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status403Forbidden);
         }
 
         var chatRoom = await db.ChatRooms
@@ -710,7 +718,7 @@ public static class ConsultationEndpoints
             .FirstOrDefaultAsync(r => r.ConsultationId == id && !r.IsDeleted, ct);
 
         if (chatRoom is null)
-            return Results.NotFound(new ErrorResponse("Chat room not found for this consultation."));
+            return Results.NotFound(ErrorResponse.NotFound("Chat room could not be found for this consultation.", code: "CHAT_ROOM_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var messages = await db.ChatMessages
             .AsNoTracking()
@@ -745,131 +753,4 @@ public static class ConsultationEndpoints
         c.ExpiresAtUtc,
         c.AcceptedAtUtc,
         c.CompletedAtUtc);
-
-    public sealed record CreateConsultationRequest(
-        Guid PharmacistProfileId,
-        string ChiefComplaintAndSymptoms,
-        bool ClinicalSummaryConsentGranted,
-        Guid? PatientId = null,
-        int? DurationHours = null);
-
-    public sealed record AcceptConsultationRequest(decimal? Fee = null);
-
-    public sealed record RejectConsultationRequest(string RejectionReason);
-
-    public sealed record IssueHerbalPrescriptionRequest(
-        string? ClinicalDiagnosisSummary,
-        List<PrescribedHerbItem>? Herbs,
-        string? PrescribedHerbsJson,
-        string? DrugHerbInteractionWarnings,
-        string? DietaryAndLifestyleInstructions,
-        int DurationDays = 30,
-        string? PdfDocumentUrl = null);
-
-    public sealed record PrescribedHerbItem(
-        Guid? HerbId,
-        string HerbName,
-        string Dosage,
-        string PreparationInstructions,
-        string? Frequency = null,
-        int? DurationDays = null);
-
-    public sealed record ConsultationResponse(
-        Guid Id,
-        Guid PatientId,
-        Guid PharmacistProfileId,
-        Guid? TenantId,
-        decimal AgreedFeeAmount,
-        string ChiefComplaintAndSymptoms,
-        bool ClinicalSummaryConsentGranted,
-        string Status,
-        string? RejectionReason,
-        DateTime RequestedAtUtc,
-        DateTime ExpiresAtUtc,
-        DateTime? AcceptedAtUtc,
-        DateTime? CompletedAtUtc);
-
-    public sealed record ChatMessageResponse(
-        Guid Id,
-        Guid ChatRoomId,
-        Guid SenderUserId,
-        string SenderRole,
-        string MessageType,
-        string? MessageContent,
-        string? AttachmentUrl,
-        bool IsRead,
-        DateTime SentAtUtc);
-
-    public sealed record ChatRoomDetailResponse(
-        Guid Id,
-        bool IsReadOnly,
-        DateTime OpenedAtUtc,
-        DateTime? ClosedAtUtc);
-
-    public sealed record HerbalPrescriptionDetailResponse(
-        Guid Id,
-        string PrescriptionNumber,
-        string? ClinicalDiagnosisSummary,
-        string PrescribedHerbsJson,
-        string? DrugHerbInteractionWarnings,
-        string? DietaryAndLifestyleInstructions,
-        int DurationDays,
-        string? PdfDocumentUrl,
-        DateTime IssuedAtUtc);
-
-    public sealed record VideoSessionDetailResponse(
-        Guid VideoSessionId,
-        Guid Id,
-        string Provider,
-        string ServerUrl,
-        string RoomName,
-        string JoinUrl,
-        string ProviderType,
-        string ExternalRoomName,
-        string SessionStatus,
-        DateTime? StartedAtUtc,
-        DateTime? EndedAtUtc,
-        int? DurationSeconds);
-
-    public sealed record ConsultationDetailResponse(
-        ConsultationResponse Consultation,
-        Guid? ChatRoomId,
-        bool IsChatReadOnly,
-        ChatRoomDetailResponse? ChatRoom,
-        HerbalPrescriptionDetailResponse? Prescription,
-        VideoSessionDetailResponse? VideoSession);
-
-    public sealed record StartVideoResponse(
-        Guid VideoSessionId,
-        Guid ConsultationId,
-        string Provider,
-        string ServerUrl,
-        string RoomName,
-        string JoinUrl,
-        string Token,
-        string Status,
-        DateTime? StartedAtUtc);
-
-    public sealed record EndVideoResponse(
-        Guid ConsultationId,
-        Guid? VideoSessionId,
-        string Status,
-        DateTime? EndedAtUtc,
-        int? DurationSeconds);
-
-    public sealed record IssueHerbalPrescriptionResponse(
-        Guid PrescriptionId,
-        string PrescriptionNumber,
-        Guid ConsultationId,
-        Guid PatientId,
-        Guid PharmacistProfileId,
-        string? ClinicalDiagnosisSummary,
-        string PrescribedHerbsJson,
-        string? DrugHerbInteractionWarnings,
-        string? DietaryAndLifestyleInstructions,
-        int DurationDays,
-        string? PdfDocumentUrl,
-        DateTime IssuedAtUtc,
-        string ConsultationStatus,
-        bool ChatRoomClosed);
 }

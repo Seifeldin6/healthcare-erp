@@ -23,13 +23,13 @@ public static class PharmacistEndpoints
             .RequireAuthorization()
             .WithName("GetApprovedAvailablePharmacists")
             .Produces<PagedResult<PharmacistResponse>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized);
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/me", GetMyPharmacistProfile)
             .RequireAuthorization("PharmacistOnly")
             .WithName("GetMyPharmacistProfile")
             .Produces<PharmacistResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/me/profile", UpsertMyPharmacistProfile)
@@ -37,7 +37,7 @@ public static class PharmacistEndpoints
             .WithName("CreateMyPharmacistProfile")
             .Produces<PharmacistResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPut("/me/profile", UpsertMyPharmacistProfile)
@@ -45,7 +45,7 @@ public static class PharmacistEndpoints
             .WithName("UpdateMyPharmacistProfile")
             .Produces<PharmacistResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status409Conflict);
 
         group.MapPut("/me/availability", ToggleMyAvailability)
@@ -53,14 +53,14 @@ public static class PharmacistEndpoints
             .WithName("ToggleMyAvailability")
             .Produces<PharmacistAvailabilityResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:guid}/verify", VerifyPharmacist)
             .RequireAuthorization()
             .WithName("VerifyPharmacist")
             .Produces<PharmacistResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
@@ -104,17 +104,18 @@ public static class PharmacistEndpoints
     private static async Task<IResult> GetMyPharmacistProfile(
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         return Results.Ok(MapProfile(profile));
     }
@@ -124,10 +125,11 @@ public static class PharmacistEndpoints
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
         IWebHostEnvironment environment,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
@@ -143,14 +145,14 @@ public static class PharmacistEndpoints
         if (profile is null)
         {
             if (string.IsNullOrWhiteSpace(licenseNumber))
-                return Results.BadRequest(new ErrorResponse("License number is required."));
+                return Results.BadRequest(ErrorResponse.BadRequest("Please provide a valid syndicate license number.", code: "VALIDATION_ERROR", traceId: httpContext.TraceIdentifier));
 
             var licenseExists = await db.PharmacistProfiles
                 .AsNoTracking()
                 .AnyAsync(p => p.SyndicateLicenseNumber == licenseNumber && !p.IsDeleted, ct);
 
             if (licenseExists)
-                return Results.Conflict(new ErrorResponse("License number is already registered."));
+                return Results.Conflict(ErrorResponse.Conflict("This syndicate license number is already registered.", code: "LICENSE_ALREADY_EXISTS", traceId: httpContext.TraceIdentifier));
 
             profile = PharmacistProfile.Create(
                 currentUser.UserId.Value,
@@ -186,22 +188,23 @@ public static class PharmacistEndpoints
         UpdateAvailabilityRequest? request,
         ICurrentUserService currentUser,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var profile = await db.PharmacistProfiles
             .FirstOrDefaultAsync(p => p.UserId == currentUser.UserId.Value && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var targetAvailability = request?.IsAvailable ?? !profile.IsAvailableForRequests;
 
         if (targetAvailability && profile.VerificationStatus != VerificationStatus.Approved)
         {
-            return Results.BadRequest(new ErrorResponse("Only approved pharmacists can set availability to true."));
+            return Results.BadRequest(ErrorResponse.BadRequest("Only approved pharmacists can accept consultation requests.", code: "PHARMACIST_NOT_APPROVED", traceId: httpContext.TraceIdentifier));
         }
 
         profile.SetAvailability(targetAvailability);
@@ -217,13 +220,14 @@ public static class PharmacistEndpoints
         Guid id,
         VerifyPharmacistRequest? request,
         TelePharmacyDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var profile = await db.PharmacistProfiles
             .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted, ct);
 
         if (profile is null)
-            return Results.NotFound(new ErrorResponse("Pharmacist profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Pharmacist profile could not be found.", code: "PHARMACIST_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var approve = request?.Approve ?? true;
 

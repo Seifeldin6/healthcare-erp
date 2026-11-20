@@ -36,8 +36,8 @@ public static class AuthEndpoints
             .WithName("Login")
             .Produces<LoginResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden);
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden);
 
         return app;
     }
@@ -47,13 +47,14 @@ public static class AuthEndpoints
         CoreDbContext db,
         IPasswordHasher passwordHasher,
         JwtTokenGenerator tokenGenerator,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
-            return Results.Conflict(new ErrorResponse("Email already registered."));
+            return Results.Conflict(ErrorResponse.Conflict("This email address is already registered.", code: "EMAIL_ALREADY_EXISTS", traceId: httpContext.TraceIdentifier));
 
         if (await db.Patients.AsNoTracking().AnyAsync(p => p.NationalId == request.NationalId, ct))
-            return Results.Conflict(new ErrorResponse("National ID already registered."));
+            return Results.Conflict(ErrorResponse.Conflict("This national ID is already registered.", code: "NATIONAL_ID_ALREADY_EXISTS", traceId: httpContext.TraceIdentifier));
 
         var passwordHash = passwordHasher.Hash(request.Password);
         var user = User.Create(null, request.Email, request.PhoneNumber, passwordHash, request.FullName, UserRole.Patient);
@@ -90,10 +91,11 @@ public static class AuthEndpoints
         CoreDbContext db,
         IPasswordHasher passwordHasher,
         JwtTokenGenerator tokenGenerator,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await db.Users.AsNoTracking().AnyAsync(u => u.Email == request.Email, ct))
-            return Results.Conflict(new ErrorResponse("Email already registered."));
+            return Results.Conflict(ErrorResponse.Conflict("This email address is already registered.", code: "EMAIL_ALREADY_EXISTS", traceId: httpContext.TraceIdentifier));
 
         var passwordHash = passwordHasher.Hash(request.Password);
         var user = User.Create(request.TenantId, request.Email, request.PhoneNumber, passwordHash, request.FullName, UserRole.Pharmacist);
@@ -115,16 +117,21 @@ public static class AuthEndpoints
         CoreDbContext db,
         IPasswordHasher passwordHasher,
         JwtTokenGenerator tokenGenerator,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(
             u => u.Email == request.EmailOrPhone || u.PhoneNumber == request.EmailOrPhone, ct);
 
         if (user is null || !passwordHasher.Verify(request.Password, user.PasswordHash))
-            return Results.Unauthorized();
+            return Results.Json(
+                ErrorResponse.Unauthorized("Invalid email or password.", code: "INVALID_CREDENTIALS", traceId: httpContext.TraceIdentifier),
+                statusCode: StatusCodes.Status401Unauthorized);
 
         if (!user.IsActive)
-            return Results.Forbid();
+            return Results.Json(
+                ErrorResponse.Forbidden("Your account has been deactivated. Please contact support.", code: "ACCOUNT_DEACTIVATED", traceId: httpContext.TraceIdentifier),
+                statusCode: StatusCodes.Status403Forbidden);
 
         Guid? patientId = null;
         if (user.Role == UserRole.Patient)
@@ -154,19 +161,8 @@ public static class AuthEndpoints
         BloodType BloodType,
         decimal WeightKg,
         decimal HeightCm,
-        string? EmergencyContactName,
-        string? EmergencyContactPhone);
-
-    public sealed record RegisterPharmacistRequest(
-        string Email,
-        string PhoneNumber,
-        string Password,
-        string FullName,
-        Guid? TenantId);
-
-    public sealed record LoginRequest(
-        string EmailOrPhone,
-        string Password);
+        string? EmergencyContactName = null,
+        string? EmergencyContactPhone = null);
 
     public sealed record RegisterPatientResponse(
         string Token,
@@ -174,11 +170,22 @@ public static class AuthEndpoints
         Guid PatientId,
         string Role);
 
+    public sealed record RegisterPharmacistRequest(
+        string Email,
+        string PhoneNumber,
+        string Password,
+        string FullName,
+        Guid? TenantId = null);
+
     public sealed record RegisterPharmacistResponse(
         string Token,
         Guid UserId,
         string Role,
         Guid? TenantId);
+
+    public sealed record LoginRequest(
+        string EmailOrPhone,
+        string Password);
 
     public sealed record LoginResponse(
         string Token,

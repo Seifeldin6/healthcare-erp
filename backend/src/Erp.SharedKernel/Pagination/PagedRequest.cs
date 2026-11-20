@@ -2,6 +2,7 @@ namespace Erp.SharedKernel.Pagination;
 
 public class PagedRequest
 {
+    public const int MaxPageSize = 100;
     private int _pageNumber = 1;
     private int _pageSize = 10;
 
@@ -14,7 +15,7 @@ public class PagedRequest
     public int PageSize
     {
         get => _pageSize;
-        set => _pageSize = value < 1 ? 1 : value > 50 ? 50 : value;
+        set => _pageSize = value < 1 ? 1 : value > MaxPageSize ? MaxPageSize : value;
     }
 
     public int NormalizedPageNumber => _pageNumber;

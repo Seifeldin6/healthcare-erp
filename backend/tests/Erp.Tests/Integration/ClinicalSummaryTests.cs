@@ -100,7 +100,7 @@ public class ClinicalSummaryTests
 
         var error = await response.Content.ReadFromJsonAsync<ErrorResponse>(TestAuthHelper.JsonOptions);
         Assert.NotNull(error);
-        Assert.Contains("not valid JSON", error.Message);
+        Assert.Equal("The submitted data format is invalid.", error.Message);
     }
 
     [Fact]

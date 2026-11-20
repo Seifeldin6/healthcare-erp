@@ -9,13 +9,16 @@ public static class QueryablePaginationExtensions
         PagedRequest request,
         CancellationToken ct = default)
     {
+        var pageNumber = request.NormalizedPageNumber < 1 ? 1 : request.NormalizedPageNumber;
+        var pageSize = Math.Clamp(request.NormalizedPageSize, 1, PagedRequest.MaxPageSize);
+
         var totalCount = await query.CountAsync(ct);
 
         var items = await query
-            .Skip((request.NormalizedPageNumber - 1) * request.NormalizedPageSize)
-            .Take(request.NormalizedPageSize)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(ct);
 
-        return PagedResult<T>.Create(items, totalCount, request.NormalizedPageNumber, request.NormalizedPageSize);
+        return PagedResult<T>.Create(items, totalCount, pageNumber, pageSize);
     }
 }

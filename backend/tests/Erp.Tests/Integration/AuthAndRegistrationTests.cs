@@ -130,7 +130,7 @@ public class AuthAndRegistrationTests
     }
 
     [Fact]
-    public async Task Login_WithInvalidPassword_ReturnsUnauthorized()
+    public async Task Login_WithInvalidPassword_ReturnsUnauthorized_WithUnifiedJsonBody()
     {
         var client = _factory.CreateClient();
 
@@ -139,6 +139,14 @@ public class AuthAndRegistrationTests
             "WrongPassword!"), TestAuthHelper.JsonOptions);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+
+        var err = await response.Content.ReadFromJsonAsync<ErrorResponse>(TestAuthHelper.JsonOptions);
+        Assert.NotNull(err);
+        Assert.False(err.Success);
+        Assert.Equal(401, err.StatusCode);
+        Assert.Equal("INVALID_CREDENTIALS", err.Code);
+        Assert.False(string.IsNullOrWhiteSpace(err.Message));
     }
 
     [Fact]
@@ -168,6 +176,10 @@ public class AuthAndRegistrationTests
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         var err = await response.Content.ReadFromJsonAsync<ErrorResponse>(TestAuthHelper.JsonOptions);
         Assert.NotNull(err);
-        Assert.Contains("Email", err.Message);
+        Assert.False(err.Success);
+        Assert.Equal(409, err.StatusCode);
+        Assert.Equal("EMAIL_ALREADY_EXISTS", err.Code);
+        Assert.Contains("email", err.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(err.Errors);
     }
 }

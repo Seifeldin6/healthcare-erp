@@ -22,7 +22,7 @@ public static class PatientEndpoints
             .RequireAuthorization("PatientOnly")
             .WithName("GetMyClinicalSummary")
             .Produces<PatientClinicalSummaryDetailResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapPut("/me/clinical-summary", UpdateMyClinicalSummary)
@@ -30,15 +30,15 @@ public static class PatientEndpoints
             .WithName("UpdateMyClinicalSummary")
             .Produces<PatientClinicalSummaryResponse>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         group.MapGet("/{patientId:guid}/clinical-summary", GetPatientClinicalSummary)
             .RequireAuthorization("ClinicalStaff")
             .WithName("GetPatientClinicalSummary")
             .Produces<PatientClinicalSummaryDetailResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized)
+            .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
 
         return app;
@@ -47,24 +47,25 @@ public static class PatientEndpoints
     private static async Task<IResult> GetMyClinicalSummary(
         ClaimsPrincipal principal,
         CoreDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var userIdStr = principal.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
             ?? principal.FindFirstValue("sub");
         if (!Guid.TryParse(userIdStr, out var userId))
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
-            return Results.NotFound(new ErrorResponse("Patient profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Patient profile could not be found.", code: "PATIENT_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var summary = await db.PatientClinicalSummaries
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
 
         if (summary is null)
-            return Results.NotFound(new ErrorResponse("Clinical summary not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Clinical summary could not be found.", code: "CLINICAL_SUMMARY_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
 
@@ -77,30 +78,30 @@ public static class PatientEndpoints
         UpdateClinicalSummaryRequest request,
         ClaimsPrincipal principal,
         CoreDbContext db,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var userIdStr = principal.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? principal.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
             ?? principal.FindFirstValue("sub");
         if (!Guid.TryParse(userIdStr, out var userId))
-            return Results.Unauthorized();
+            return Results.Json(ErrorResponse.Unauthorized("Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", traceId: httpContext.TraceIdentifier), statusCode: StatusCodes.Status401Unauthorized);
 
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId, ct);
         if (patient is null)
-            return Results.NotFound(new ErrorResponse("Patient profile not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Patient profile could not be found.", code: "PATIENT_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
-        // Validate and normalise each JSON field; null/empty defaults to "[]".
         if (!TryNormaliseJson(request.AllergiesJson, out var allergiesJson))
-            return Results.BadRequest(new ErrorResponse("AllergiesJson is not valid JSON."));
+            return Results.BadRequest(ErrorResponse.BadRequest("The submitted data format is invalid.", code: "INVALID_DATA_FORMAT", traceId: httpContext.TraceIdentifier));
 
         if (!TryNormaliseJson(request.ChronicConditionsJson, out var chronicConditionsJson))
-            return Results.BadRequest(new ErrorResponse("ChronicConditionsJson is not valid JSON."));
+            return Results.BadRequest(ErrorResponse.BadRequest("The submitted data format is invalid.", code: "INVALID_DATA_FORMAT", traceId: httpContext.TraceIdentifier));
 
         if (!TryNormaliseJson(request.ActiveMedicationsJson, out var activeMedicationsJson))
-            return Results.BadRequest(new ErrorResponse("ActiveMedicationsJson is not valid JSON."));
+            return Results.BadRequest(ErrorResponse.BadRequest("The submitted data format is invalid.", code: "INVALID_DATA_FORMAT", traceId: httpContext.TraceIdentifier));
 
         if (!TryNormaliseJson(request.MajorSurgeriesJson, out var majorSurgeriesJson))
-            return Results.BadRequest(new ErrorResponse("MajorSurgeriesJson is not valid JSON."));
+            return Results.BadRequest(ErrorResponse.BadRequest("The submitted data format is invalid.", code: "INVALID_DATA_FORMAT", traceId: httpContext.TraceIdentifier));
 
         var summary = await db.PatientClinicalSummaries
             .FirstOrDefaultAsync(s => s.PatientId == patient.Id, ct);
@@ -135,18 +136,19 @@ public static class PatientEndpoints
         ClaimsPrincipal principal,
         CoreDbContext db,
         ICurrentUserService currentUser,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         var patient = await db.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.Id == patientId, ct);
         if (patient is null)
-            return Results.NotFound(new ErrorResponse("Patient not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Patient could not be found.", code: "PATIENT_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var summary = await db.PatientClinicalSummaries
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.PatientId == patientId, ct);
 
         if (summary is null)
-            return Results.NotFound(new ErrorResponse("Clinical summary not found."));
+            return Results.NotFound(ErrorResponse.NotFound("Clinical summary could not be found.", code: "CLINICAL_SUMMARY_NOT_FOUND", traceId: httpContext.TraceIdentifier));
 
         var auditLog = AuditLog.Create(
             currentUser.UserId,
