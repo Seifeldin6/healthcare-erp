@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/helpers/extensions.dart';
 import 'package:healthcare_app/core/theme/app_colors.dart';
 import 'package:healthcare_app/core/theme/app_dimensions.dart';
 import 'package:healthcare_app/core/theme/app_text_styles.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class LoginErrorBanner extends StatelessWidget {
-  const LoginErrorBanner({super.key});
-
+  const LoginErrorBanner({super.key, this.message});
+  final String? message;
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final displayMessage = (!(message.isNullOrEmpty()))
+        ? message
+        : s.loginErrorDescription;
 
     return Container(
       width: double.infinity,
@@ -41,7 +45,7 @@ class LoginErrorBanner extends StatelessWidget {
                 ),
                 SizedBox(height: AppDimensions.spacing4.h),
                 Text(
-                  s.loginErrorDescription,
+                  displayMessage!,
                   style: AppTextStyles.caption13MutedRegular.copyWith(
                     color: AppColors.error,
                     height: 18 / 13,

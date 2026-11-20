@@ -53,15 +53,30 @@ class ApiErrorHandler {
     int? statusCode,
   ) {
     final data = response?.data;
+
     if (data is Map<String, dynamic>) {
       final apiErrorModel = ApiErrorModel.fromJson(data);
       if (!(apiErrorModel.message.isNullOrEmpty())) {
         return ApiErrorHandler._(apiErrorModel.message!, statusCode);
       }
     }
-    return ApiErrorHandler._(
-      'Server error ($statusCode). Please try again.',
-      statusCode,
-    );
+
+    switch (statusCode) {
+      case 401:
+        return ApiErrorHandler._(
+          'Invalid email/phone or password. Please try again.',
+          statusCode,
+        );
+      case 403:
+        return ApiErrorHandler._(
+          'Access denied. You do not have permission to perform this action.',
+          statusCode,
+        );
+      default:
+        return ApiErrorHandler._(
+          'Server error ($statusCode). Please try again.',
+          statusCode,
+        );
+    }
   }
 }
