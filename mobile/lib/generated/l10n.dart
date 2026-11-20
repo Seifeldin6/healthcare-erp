@@ -624,6 +624,151 @@ class S {
       args: [],
     );
   }
+
+  /// `Welcome back`
+  String get loginWelcomeTitle {
+    return Intl.message(
+      'Welcome back',
+      name: 'loginWelcomeTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in to follow your consultations and manage your health summary.`
+  String get loginWelcomeSubtitle {
+    return Intl.message(
+      'Log in to follow your consultations and manage your health summary.',
+      name: 'loginWelcomeSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email or phone number`
+  String get emailOrPhoneLabel {
+    return Intl.message(
+      'Email or phone number',
+      name: 'emailOrPhoneLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `name@example.com or +20...`
+  String get emailOrPhoneHint {
+    return Intl.message(
+      'name@example.com or +20...',
+      name: 'emailOrPhoneHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ``
+  String get emailOrPhoneLtrHelper {
+    return Intl.message('', name: 'emailOrPhoneLtrHelper', desc: '', args: []);
+  }
+
+  /// `Password`
+  String get passwordLabel {
+    return Intl.message('Password', name: 'passwordLabel', desc: '', args: []);
+  }
+
+  /// `Enter your password`
+  String get passwordHint {
+    return Intl.message(
+      'Enter your password',
+      name: 'passwordHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in`
+  String get loginButton {
+    return Intl.message('Log in', name: 'loginButton', desc: '', args: []);
+  }
+
+  /// `Try again`
+  String get tryAgainButton {
+    return Intl.message(
+      'Try again',
+      name: 'tryAgainButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't log you in`
+  String get loginErrorTitle {
+    return Intl.message(
+      'We couldn\'t log you in',
+      name: 'loginErrorTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The email, phone number or password is incorrect. Check them and try again.`
+  String get loginErrorDescription {
+    return Intl.message(
+      'The email, phone number or password is incorrect. Check them and try again.',
+      name: 'loginErrorDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This app is for patients. Pharmacists sign in through the web portal.`
+  String get patientPortalNotice {
+    return Intl.message(
+      'This app is for patients. Pharmacists sign in through the web portal.',
+      name: 'patientPortalNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New to Shifa? `
+  String get newToShifa {
+    return Intl.message(
+      'New to Shifa? ',
+      name: 'newToShifa',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create account`
+  String get createAccount {
+    return Intl.message(
+      'Create account',
+      name: 'createAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your email or phone number`
+  String get emailOrPhoneRequiredError {
+    return Intl.message(
+      'Please enter your email or phone number',
+      name: 'emailOrPhoneRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your password`
+  String get passwordRequiredError {
+    return Intl.message(
+      'Please enter your password',
+      name: 'passwordRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

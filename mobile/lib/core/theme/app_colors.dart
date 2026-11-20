@@ -35,4 +35,6 @@ abstract final class AppColors {
   static const Color conditionText = Color(0xFF33507A);
 
   static const Color languageOptionBg = Color(0xFFF7FAF9);
+  static const Color noticeBg = Color(0xFFF3F6F5);
+  static const Color errorBorder = Color(0xFFFECDCA);
 }

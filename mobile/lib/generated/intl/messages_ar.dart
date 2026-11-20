@@ -58,8 +58,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "chooseLanguageTitleEn": MessageLookupByLibrary.simpleMessage(
       "Choose your language",
     ),
+    "createAccount": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
+    "emailOrPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "name@example.com",
+    ),
+    "emailOrPhoneLabel": MessageLookupByLibrary.simpleMessage(
+      "البريد الإلكتروني أو رقم الهاتف",
+    ),
+    "emailOrPhoneLtrHelper": MessageLookupByLibrary.simpleMessage(
+      "يُكتب البريد ورقم الهاتف من اليسار إلى اليمين.",
+    ),
+    "emailOrPhoneRequiredError": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال البريد الإلكتروني أو رقم الهاتف",
+    ),
     "languageArabicOption": MessageLookupByLibrary.simpleMessage("العربية"),
     "languageEnglishOption": MessageLookupByLibrary.simpleMessage("English"),
+    "loginButton": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
+    "loginErrorDescription": MessageLookupByLibrary.simpleMessage(
+      "البريد الإلكتروني أو رقم الهاتف أو كلمة المرور غير صحيحة. تحقّق منها وحاول مرة أخرى.",
+    ),
+    "loginErrorTitle": MessageLookupByLibrary.simpleMessage(
+      "تعذّر تسجيل الدخول",
+    ),
+    "loginWelcomeSubtitle": MessageLookupByLibrary.simpleMessage(
+      "سجّل الدخول لمتابعة استشاراتك وإدارة ملخصك الصحي.",
+    ),
+    "loginWelcomeTitle": MessageLookupByLibrary.simpleMessage("مرحبًا بعودتك"),
+    "newToShifa": MessageLookupByLibrary.simpleMessage("جديد على شفاء؟ "),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
       "لديّ حساب بالفعل",
     ),
@@ -86,6 +111,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "onboardingStep3Title": MessageLookupByLibrary.simpleMessage(
       "وصفتك وصحتك في مكان\nواحد",
+    ),
+    "passwordHint": MessageLookupByLibrary.simpleMessage("••••••••"),
+    "passwordLabel": MessageLookupByLibrary.simpleMessage("كلمة المرور"),
+    "passwordRequiredError": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال كلمة المرور",
+    ),
+    "patientPortalNotice": MessageLookupByLibrary.simpleMessage(
+      "هذا التطبيق مخصص للمرضى. يسجّل الصيادلة الدخول عبر بوابة الويب.",
     ),
     "pharmacistMockupAvailable": MessageLookupByLibrary.simpleMessage("متاح"),
     "pharmacistMockupCurrency": MessageLookupByLibrary.simpleMessage("ج.م"),
@@ -155,5 +188,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "splashTagline": MessageLookupByLibrary.simpleMessage(
       "رعاية صيدلانية موثوقة، أينما كنت.",
     ),
+    "tryAgainButton": MessageLookupByLibrary.simpleMessage("حاول مرة أخرى"),
   };
 }

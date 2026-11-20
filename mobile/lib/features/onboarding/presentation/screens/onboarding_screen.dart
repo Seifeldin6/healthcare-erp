@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:healthcare_app/core/helpers/extensions.dart';
+import 'package:healthcare_app/core/routing/routes.dart';
 import 'package:healthcare_app/core/theme/app_colors.dart';
 import 'package:healthcare_app/core/theme/app_dimensions.dart';
 import 'package:healthcare_app/core/widgets/app_primary_button.dart';
@@ -37,7 +39,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _onSkip() {}
+  void _onSkip() {
+    context.pushReplacementNamed(Routes.loginScreen);
+  }
 
   void _onNext() {
     if (_currentIndex < 2) {
@@ -45,7 +49,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    } else {}
+    } else {
+      context.pushReplacementNamed(Routes.loginScreen);
+    }
   }
 
   @override
