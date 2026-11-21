@@ -9,7 +9,9 @@ import 'package:healthcare_app/features/auth/data/datasources/auth_remote_data_s
 import 'package:healthcare_app/features/auth/data/repositories/auth_repo_impl.dart';
 import 'package:healthcare_app/features/auth/domain/repositories/auth_repo.dart';
 import 'package:healthcare_app/features/auth/domain/usecases/login_use_case.dart';
+import 'package:healthcare_app/features/auth/domain/usecases/register_patient_use_case.dart';
 import 'package:healthcare_app/features/auth/presentation/cubit/login_cubit.dart';
+import 'package:healthcare_app/features/auth/presentation/cubit/register_patient_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
@@ -52,7 +54,11 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(getIt<AuthRepo>()),
   );
-  getIt.registerFactory<LoginCubit>(
-    () => LoginCubit(getIt<LoginUseCase>()),
+  getIt.registerFactory<LoginCubit>(() => LoginCubit(getIt<LoginUseCase>()));
+  getIt.registerLazySingleton<RegisterPatientUseCase>(
+    () => RegisterPatientUseCase(getIt<AuthRepo>()),
+  );
+  getIt.registerFactory<RegisterPatientCubit>(
+    () => RegisterPatientCubit(getIt<RegisterPatientUseCase>()),
   );
 }

@@ -6,6 +6,7 @@ import 'package:healthcare_app/core/storage/storage_keys.dart';
 import 'package:healthcare_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:healthcare_app/features/auth/data/models/login_request_model.dart';
 import 'package:healthcare_app/features/auth/data/models/login_response_model.dart';
+import 'package:healthcare_app/features/auth/data/models/register_patient_request_model.dart';
 import 'package:healthcare_app/features/auth/domain/entities/login_entity.dart';
 import 'package:healthcare_app/features/auth/domain/repositories/auth_repo.dart';
 
@@ -30,7 +31,22 @@ class AuthRepoImpl implements AuthRepo {
       return ApiResult.failure(ApiErrorHandler.handle(error));
     }
   }
+  
 
+  @override
+  Future<ApiResult<LoginEntity>> registerPatient(
+    RegisterPatientRequestModel requestModel,
+  ) async {
+    try {
+      final response = await _remoteDataSource.registerPatient(requestModel);
+      await _saveUserSession(response);
+      return ApiResult.success(response);
+    } catch (error) {
+      return ApiResult.failure(ApiErrorHandler.handle(error));
+    }
+  }
+
+  
   Future<void> _saveUserSession(LoginResponseModel response) async {
     await Future.wait([
       _secureStorage.setString(StorageKeys.userToken, response.token),
