@@ -12,7 +12,7 @@ abstract final class LightTheme {
     primaryColor: AppColors.primary,
     fontFamily: 'PlusJakartaSans',
     fontFamilyFallback: const ['IBMPlexSansArabic'],
-    
+
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       primary: AppColors.primary,
@@ -54,6 +54,8 @@ abstract final class LightTheme {
       filled: true,
       fillColor: Colors.white,
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      errorMaxLines: 2,
+      errorStyle: AppTextStyles.caption.copyWith(color: AppColors.error),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppDimensions.fieldRadius),
         borderSide: const BorderSide(color: AppColors.line),

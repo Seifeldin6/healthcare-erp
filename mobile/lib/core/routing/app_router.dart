@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:healthcare_app/core/di/dependency_injection.dart';
 import 'package:healthcare_app/features/auth/presentation/cubit/login_cubit.dart';
+import 'package:healthcare_app/features/auth/presentation/cubit/register_patient_cubit.dart';
 import 'package:healthcare_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:healthcare_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:healthcare_app/features/choose_language/presentation/screens/choose_language_screen.dart';
 import 'package:healthcare_app/features/home_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -27,7 +29,13 @@ class AppRouter {
         );
       case Routes.homeScreen:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
-
+      case Routes.registerScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<RegisterPatientCubit>(),
+            child: const RegisterScreen(),
+          ),
+        );
       default:
         return null;
     }

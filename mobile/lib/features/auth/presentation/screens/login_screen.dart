@@ -8,12 +8,12 @@ import 'package:healthcare_app/core/theme/app_dimensions.dart';
 import 'package:healthcare_app/core/theme/app_text_styles.dart';
 import 'package:healthcare_app/core/widgets/app_primary_button.dart';
 import 'package:healthcare_app/core/widgets/app_text_form_field.dart';
+import 'package:healthcare_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:healthcare_app/features/auth/presentation/cubit/login_cubit.dart';
-import 'package:healthcare_app/features/auth/presentation/cubit/login_state.dart';
 import 'package:healthcare_app/features/auth/presentation/widgets/auth_brand_header.dart';
 import 'package:healthcare_app/features/auth/presentation/widgets/auth_footer_prompt.dart';
 import 'package:healthcare_app/features/auth/presentation/widgets/login_error_banner.dart';
-import 'package:healthcare_app/features/auth/presentation/widgets/patient_protal_notice.dart';
+import 'package:healthcare_app/features/auth/presentation/widgets/auth_info_notice.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -53,15 +53,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
-        child: BlocConsumer<LoginCubit, LoginState>(
+        child: BlocConsumer<LoginCubit, AuthState>(
           listener: (context, state) {
-            if (state is LoginSuccess) {
+            if (state is AuthSuccess) {
               context.pushReplacementNamed(Routes.homeScreen);
             }
           },
           builder: (context, state) {
-            final isLoading = state is LoginLoading;
-            final hasLoginError = state is LoginFailure;
+            final isLoading = state is AuthLoading;
+            final hasLoginError = state is AuthFailure;
 
             return CustomScrollView(
               slivers: [
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           if (hasLoginError) ...[
                             SizedBox(height: AppDimensions.spacing24.h),
-                            LoginErrorBanner(message: state.message),
+                            LoginErrorBanner(message: state.error),
                           ],
                           SizedBox(height: AppDimensions.spacing24.h),
                           AppTextFormField(
@@ -158,14 +158,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           if (!hasLoginError) ...[
                             SizedBox(height: AppDimensions.spacing16.h),
-                            const PatientPortalNotice(),
+                            AuthInfoNotice(message: s.patientPortalNotice),
                           ],
                           const Spacer(),
                           SizedBox(height: AppDimensions.spacing24.h),
                           AuthFooterPrompt(
                             leadingText: s.newToShifa,
                             actionText: s.createAccount,
-                            onActionTap: () {},
+                            onActionTap: () {
+                              context.pushReplacementNamed(
+                                Routes.registerScreen,
+                              );
+                            },
                           ),
                         ],
                       ),
