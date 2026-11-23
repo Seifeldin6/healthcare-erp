@@ -7,13 +7,19 @@ import 'package:healthcare_app/core/theme/app_text_styles.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class LoginErrorBanner extends StatelessWidget {
-  const LoginErrorBanner({super.key, this.message});
+  const LoginErrorBanner({super.key, this.title, this.message});
+
+  final String? title;
   final String? message;
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final displayTitle = (!(title.isNullOrEmpty()))
+        ? title!
+        : s.loginErrorTitle;
     final displayMessage = (!(message.isNullOrEmpty()))
-        ? message
+        ? message!
         : s.loginErrorDescription;
 
     return Container(
@@ -38,14 +44,14 @@ class LoginErrorBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s.loginErrorTitle,
+                  displayTitle,
                   style: AppTextStyles.label14InkBold.copyWith(
                     color: AppColors.error,
                   ),
                 ),
                 SizedBox(height: AppDimensions.spacing4.h),
                 Text(
-                  displayMessage!,
+                  displayMessage,
                   style: AppTextStyles.caption13MutedRegular.copyWith(
                     color: AppColors.error,
                     height: 18 / 13,

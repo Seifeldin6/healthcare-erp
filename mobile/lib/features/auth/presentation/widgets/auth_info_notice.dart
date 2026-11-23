@@ -3,15 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:healthcare_app/core/theme/app_colors.dart';
 import 'package:healthcare_app/core/theme/app_dimensions.dart';
 import 'package:healthcare_app/core/theme/app_text_styles.dart';
-import 'package:healthcare_app/generated/l10n.dart';
 
-class PatientPortalNotice extends StatelessWidget {
-  const PatientPortalNotice({super.key});
-
+class AuthInfoNotice extends StatelessWidget {
+  const AuthInfoNotice({super.key, required this.message});
+  final String message;
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -25,15 +22,12 @@ class PatientPortalNotice extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.muted,
-            size: 18.sp,
-          ),
+          Icon(Icons.info_outline_rounded, color: AppColors.muted, size: 18.sp),
           SizedBox(width: AppDimensions.spacing12.w),
           Expanded(
             child: Text(
-              s.patientPortalNotice,
+              message,
+              //   s.patientPortalNotice,
               style: AppTextStyles.caption12MutedRegular.copyWith(
                 height: 18 / 12,
               ),

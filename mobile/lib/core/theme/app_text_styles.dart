@@ -85,6 +85,13 @@ abstract final class AppTextStyles {
     fontWeight: FontWeightHelper.extraBold,
     color: AppColors.ink,
   );
+  static TextStyle display26InkExtraBold = _base(
+    fontSize: 26.sp,
+    height: 32 / 26,
+    letterSpacing: -0.5,
+    fontWeight: FontWeightHelper.extraBold,
+    color: AppColors.ink,
+  );
   static TextStyle title26InkBold = title.copyWith(color: AppColors.ink);
   static TextStyle title24InkBold = _base(
     fontSize: 24.sp,
@@ -130,6 +137,18 @@ abstract final class AppTextStyles {
     color: AppColors.primary,
   );
 
+  static TextStyle body14PrimaryBold = _base(
+    fontSize: 14.sp,
+    fontWeight: FontWeightHelper.bold,
+    color: AppColors.primary,
+  );
+
+  static TextStyle body15PrimaryBold = _base(
+    fontSize: 15.sp,
+    fontWeight: FontWeightHelper.bold,
+    color: AppColors.primary,
+  );
+
   static TextStyle body16WarmInkBold = _base(
     fontSize: 16.sp,
     fontWeight: FontWeightHelper.bold,
@@ -142,7 +161,18 @@ abstract final class AppTextStyles {
     fontWeight: FontWeightHelper.semiBold,
     color: AppColors.muted,
   );
-
+  static TextStyle body14MutedRegular = _base(
+    fontSize: 14.sp,
+    height: 22 / 14,
+    fontWeight: FontWeightHelper.regular,
+    color: AppColors.muted,
+  );
+  static TextStyle body15MutedRegular = _base(
+    fontSize: 15.sp,
+    height: 22 / 15,
+    fontWeight: FontWeightHelper.regular,
+    color: AppColors.muted,
+  );
   // Label (15.sp & 14.sp)
   static TextStyle label15InkBold = _base(
     fontSize: 15.sp,

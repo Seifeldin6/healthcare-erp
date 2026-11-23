@@ -20,10 +20,22 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String m0(current, total) => "Step ${current} of ${total}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accountDetailsSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Account details",
+    ),
+    "accountSectionTitle": MessageLookupByLibrary.simpleMessage("1 · ACCOUNT"),
+    "alreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
+      "Already have an account?",
+    ),
     "appName": MessageLookupByLibrary.simpleMessage("Shifa"),
     "appNameSecondary": MessageLookupByLibrary.simpleMessage("شفاء"),
+    "backButton": MessageLookupByLibrary.simpleMessage("Back"),
+    "bloodLabel": MessageLookupByLibrary.simpleMessage("Blood"),
+    "bloodTypeLabel": MessageLookupByLibrary.simpleMessage("Blood type"),
     "chatMockupActiveStatus": MessageLookupByLibrary.simpleMessage(
       "Active chat",
     ),
@@ -58,7 +70,62 @@ class MessageLookup extends MessageLookupByLibrary {
     "chooseLanguageTitleEn": MessageLookupByLibrary.simpleMessage(
       "Choose your language",
     ),
+    "clinicalBasicsSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Helps your pharmacist advise safely",
+    ),
+    "clinicalBasicsTitle": MessageLookupByLibrary.simpleMessage(
+      "Clinical basics",
+    ),
+    "clinicalInfoBanner": MessageLookupByLibrary.simpleMessage(
+      "You can add allergies, conditions and medications later in your health summary.",
+    ),
+    "clinicalSectionTitle": MessageLookupByLibrary.simpleMessage(
+      "3 · CLINICAL",
+    ),
+    "cmUnit": MessageLookupByLibrary.simpleMessage("cm"),
+    "confirmPasswordLabel": MessageLookupByLibrary.simpleMessage(
+      "Confirm password",
+    ),
+    "confirmPasswordRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please confirm your password",
+    ),
+    "contactNameHint": MessageLookupByLibrary.simpleMessage(
+      "e.g. Ahmed Mostafa",
+    ),
+    "contactNameLabel": MessageLookupByLibrary.simpleMessage("Contact name"),
+    "contactPhoneLabel": MessageLookupByLibrary.simpleMessage("Contact phone"),
+    "continueButton": MessageLookupByLibrary.simpleMessage("Continue"),
+    "continueToReviewButton": MessageLookupByLibrary.simpleMessage(
+      "Continue to review",
+    ),
+    "couldntCreateAccountSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Your other details are saved. Fix the highlighted field, then continue to review.",
+    ),
+    "couldntCreateAccountTitle": MessageLookupByLibrary.simpleMessage(
+      "We couldn\'t create your account",
+    ),
     "createAccount": MessageLookupByLibrary.simpleMessage("Create account"),
+    "createAccountButton": MessageLookupByLibrary.simpleMessage(
+      "Create account",
+    ),
+    "createAccountTitle": MessageLookupByLibrary.simpleMessage(
+      "Create your account",
+    ),
+    "createPasswordHint": MessageLookupByLibrary.simpleMessage(
+      "Create a password",
+    ),
+    "dateOfBirthHint": MessageLookupByLibrary.simpleMessage("DD / MM / YYYY"),
+    "dateOfBirthLabel": MessageLookupByLibrary.simpleMessage("Date of birth"),
+    "dateOfBirthRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please select your date of birth",
+    ),
+    "dontKnowBloodType": MessageLookupByLibrary.simpleMessage(
+      "I don\'t know my blood type",
+    ),
+    "editAction": MessageLookupByLibrary.simpleMessage("Edit"),
+    "editButton": MessageLookupByLibrary.simpleMessage("Edit"),
+    "emailHint": MessageLookupByLibrary.simpleMessage("name@example.com"),
+    "emailLabel": MessageLookupByLibrary.simpleMessage("Email"),
     "emailOrPhoneHint": MessageLookupByLibrary.simpleMessage(
       "name@example.com or +20...",
     ),
@@ -69,8 +136,60 @@ class MessageLookup extends MessageLookupByLibrary {
     "emailOrPhoneRequiredError": MessageLookupByLibrary.simpleMessage(
       "Please enter your email or phone number",
     ),
+    "emailRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your email address",
+    ),
+    "emergencyContactNameHint": MessageLookupByLibrary.simpleMessage(
+      "Ahmed Mostafa",
+    ),
+    "emergencyContactNameLabel": MessageLookupByLibrary.simpleMessage(
+      "Contact name",
+    ),
+    "emergencyContactPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "+20 108 765 4321",
+    ),
+    "emergencyContactPhoneLabel": MessageLookupByLibrary.simpleMessage(
+      "Contact phone",
+    ),
+    "emergencyContactSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Then review and create your account",
+    ),
+    "emergencyContactTitle": MessageLookupByLibrary.simpleMessage(
+      "Emergency contact",
+    ),
+    "femaleOption": MessageLookupByLibrary.simpleMessage("Female"),
+    "fullNameHint": MessageLookupByLibrary.simpleMessage(
+      "Your full name, Arabic or English",
+    ),
+    "fullNameLabel": MessageLookupByLibrary.simpleMessage("Full name"),
+    "fullNameRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your full name",
+    ),
+    "genderLabel": MessageLookupByLibrary.simpleMessage("Gender"),
+    "genderRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please select your gender",
+    ),
+    "heightHint": MessageLookupByLibrary.simpleMessage("0"),
+    "heightLabel": MessageLookupByLibrary.simpleMessage("Height"),
+    "invalidEmailError": MessageLookupByLibrary.simpleMessage(
+      "Please enter a valid email address",
+    ),
+    "invalidNationalIdError": MessageLookupByLibrary.simpleMessage(
+      "Please enter a valid 14-digit national ID",
+    ),
+    "invalidNumberError": MessageLookupByLibrary.simpleMessage(
+      "Invalid number",
+    ),
+    "invalidPhoneError": MessageLookupByLibrary.simpleMessage(
+      "Please enter a valid phone number",
+    ),
+    "isThisYourAccount": MessageLookupByLibrary.simpleMessage(
+      "Is this your account?",
+    ),
+    "kgUnit": MessageLookupByLibrary.simpleMessage("kg"),
     "languageArabicOption": MessageLookupByLibrary.simpleMessage("العربية"),
     "languageEnglishOption": MessageLookupByLibrary.simpleMessage("English"),
+    "logInAction": MessageLookupByLibrary.simpleMessage("Log in"),
     "loginButton": MessageLookupByLibrary.simpleMessage("Log in"),
     "loginErrorDescription": MessageLookupByLibrary.simpleMessage(
       "The email, phone number or password is incorrect. Check them and try again.",
@@ -82,7 +201,16 @@ class MessageLookup extends MessageLookupByLibrary {
       "Log in to follow your consultations and manage your health summary.",
     ),
     "loginWelcomeTitle": MessageLookupByLibrary.simpleMessage("Welcome back"),
+    "maleOption": MessageLookupByLibrary.simpleMessage("Male"),
+    "nationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "e.g. 29801011234568",
+    ),
+    "nationalIdLabel": MessageLookupByLibrary.simpleMessage("National ID"),
+    "nationalIdRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your national ID",
+    ),
     "newToShifa": MessageLookupByLibrary.simpleMessage("New to Shifa? "),
+    "notProvided": MessageLookupByLibrary.simpleMessage("Not provided"),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(
       "Already have an account?",
     ),
@@ -112,11 +240,26 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "passwordHint": MessageLookupByLibrary.simpleMessage("Enter your password"),
     "passwordLabel": MessageLookupByLibrary.simpleMessage("Password"),
+    "passwordLengthError": MessageLookupByLibrary.simpleMessage(
+      "Password must be at least 8 characters",
+    ),
     "passwordRequiredError": MessageLookupByLibrary.simpleMessage(
       "Please enter your password",
     ),
+    "passwordsDoNotMatchError": MessageLookupByLibrary.simpleMessage(
+      "Passwords do not match",
+    ),
     "patientPortalNotice": MessageLookupByLibrary.simpleMessage(
       "This app is for patients. Pharmacists sign in through the web portal.",
+    ),
+    "personalDetailsSubtitle": MessageLookupByLibrary.simpleMessage(
+      "As shown on your national ID",
+    ),
+    "personalDetailsTitle": MessageLookupByLibrary.simpleMessage(
+      "Personal details",
+    ),
+    "personalSectionTitle": MessageLookupByLibrary.simpleMessage(
+      "2 · PERSONAL",
     ),
     "pharmacistMockupAvailable": MessageLookupByLibrary.simpleMessage(
       "Available",
@@ -150,6 +293,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pharmacistMockupSpecialty2": MessageLookupByLibrary.simpleMessage(
       "Herbal & Complementary",
+    ),
+    "phoneNumberHint": MessageLookupByLibrary.simpleMessage("+20 10 1234 5678"),
+    "phoneNumberLabel": MessageLookupByLibrary.simpleMessage("Phone number"),
+    "phoneRequiredError": MessageLookupByLibrary.simpleMessage(
+      "Please enter your phone number",
     ),
     "prescriptionMockupAllergies": MessageLookupByLibrary.simpleMessage(
       "Allergies",
@@ -185,11 +333,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "prescriptionMockupTitle": MessageLookupByLibrary.simpleMessage(
       "Herbal prescription",
     ),
+    "reEnterPasswordHint": MessageLookupByLibrary.simpleMessage(
+      "Re-enter your password",
+    ),
+    "registerInfoBannerPrefix": MessageLookupByLibrary.simpleMessage(
+      "Nothing is sent until you review your details and tap ",
+    ),
+    "registerInfoBannerSuffix": MessageLookupByLibrary.simpleMessage(
+      " in step 4.",
+    ),
+    "reviewYourDetailsTitle": MessageLookupByLibrary.simpleMessage(
+      "Review your details",
+    ),
+    "sectionAccount": MessageLookupByLibrary.simpleMessage("1 · ACCOUNT"),
+    "sectionClinical": MessageLookupByLibrary.simpleMessage("3 · CLINICAL"),
+    "sectionPersonal": MessageLookupByLibrary.simpleMessage("2 · PERSONAL"),
     "splashFooterAr": MessageLookupByLibrary.simpleMessage("صيدلية عن بُعد"),
     "splashFooterEn": MessageLookupByLibrary.simpleMessage("TELE-PHARMACY"),
     "splashTagline": MessageLookupByLibrary.simpleMessage(
       "Trusted pharmacy care, wherever you are.",
     ),
+    "stepOfTotal": m0,
+    "tapEditToChangeStep": MessageLookupByLibrary.simpleMessage(
+      "Tap Edit to change a step",
+    ),
     "tryAgainButton": MessageLookupByLibrary.simpleMessage("Try again"),
+    "weightHint": MessageLookupByLibrary.simpleMessage("0.0"),
+    "weightLabel": MessageLookupByLibrary.simpleMessage("Weight"),
   };
 }

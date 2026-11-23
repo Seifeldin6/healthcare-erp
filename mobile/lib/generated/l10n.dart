@@ -769,6 +769,691 @@ class S {
       args: [],
     );
   }
+
+  /// `Step {current} of {total}`
+  String stepOfTotal(int current, int total) {
+    return Intl.message(
+      'Step $current of $total',
+      name: 'stepOfTotal',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Create your account`
+  String get createAccountTitle {
+    return Intl.message(
+      'Create your account',
+      name: 'createAccountTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Account details`
+  String get accountDetailsSubtitle {
+    return Intl.message(
+      'Account details',
+      name: 'accountDetailsSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Personal details`
+  String get personalDetailsTitle {
+    return Intl.message(
+      'Personal details',
+      name: 'personalDetailsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `As shown on your national ID`
+  String get personalDetailsSubtitle {
+    return Intl.message(
+      'As shown on your national ID',
+      name: 'personalDetailsSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clinical basics`
+  String get clinicalBasicsTitle {
+    return Intl.message(
+      'Clinical basics',
+      name: 'clinicalBasicsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Helps your pharmacist advise safely`
+  String get clinicalBasicsSubtitle {
+    return Intl.message(
+      'Helps your pharmacist advise safely',
+      name: 'clinicalBasicsSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Emergency contact`
+  String get emergencyContactTitle {
+    return Intl.message(
+      'Emergency contact',
+      name: 'emergencyContactTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Then review and create your account`
+  String get emergencyContactSubtitle {
+    return Intl.message(
+      'Then review and create your account',
+      name: 'emergencyContactSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get emailLabel {
+    return Intl.message('Email', name: 'emailLabel', desc: '', args: []);
+  }
+
+  /// `name@example.com`
+  String get emailHint {
+    return Intl.message(
+      'name@example.com',
+      name: 'emailHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number`
+  String get phoneNumberLabel {
+    return Intl.message(
+      'Phone number',
+      name: 'phoneNumberLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `+20 10 1234 5678`
+  String get phoneNumberHint {
+    return Intl.message(
+      '+20 10 1234 5678',
+      name: 'phoneNumberHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a password`
+  String get createPasswordHint {
+    return Intl.message(
+      'Create a password',
+      name: 'createPasswordHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm password`
+  String get confirmPasswordLabel {
+    return Intl.message(
+      'Confirm password',
+      name: 'confirmPasswordLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-enter your password`
+  String get reEnterPasswordHint {
+    return Intl.message(
+      'Re-enter your password',
+      name: 'reEnterPasswordHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing is sent until you review your details and tap `
+  String get registerInfoBannerPrefix {
+    return Intl.message(
+      'Nothing is sent until you review your details and tap ',
+      name: 'registerInfoBannerPrefix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` in step 4.`
+  String get registerInfoBannerSuffix {
+    return Intl.message(
+      ' in step 4.',
+      name: 'registerInfoBannerSuffix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get continueButton {
+    return Intl.message('Continue', name: 'continueButton', desc: '', args: []);
+  }
+
+  /// `Continue to review`
+  String get continueToReviewButton {
+    return Intl.message(
+      'Continue to review',
+      name: 'continueToReviewButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back`
+  String get backButton {
+    return Intl.message('Back', name: 'backButton', desc: '', args: []);
+  }
+
+  /// `Already have an account?`
+  String get alreadyHaveAccount {
+    return Intl.message(
+      'Already have an account?',
+      name: 'alreadyHaveAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Is this your account?`
+  String get isThisYourAccount {
+    return Intl.message(
+      'Is this your account?',
+      name: 'isThisYourAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in`
+  String get logInAction {
+    return Intl.message('Log in', name: 'logInAction', desc: '', args: []);
+  }
+
+  /// `Full name`
+  String get fullNameLabel {
+    return Intl.message('Full name', name: 'fullNameLabel', desc: '', args: []);
+  }
+
+  /// `Your full name, Arabic or English`
+  String get fullNameHint {
+    return Intl.message(
+      'Your full name, Arabic or English',
+      name: 'fullNameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `National ID`
+  String get nationalIdLabel {
+    return Intl.message(
+      'National ID',
+      name: 'nationalIdLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `e.g. 29801011234568`
+  String get nationalIdHint {
+    return Intl.message(
+      'e.g. 29801011234568',
+      name: 'nationalIdHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date of birth`
+  String get dateOfBirthLabel {
+    return Intl.message(
+      'Date of birth',
+      name: 'dateOfBirthLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DD / MM / YYYY`
+  String get dateOfBirthHint {
+    return Intl.message(
+      'DD / MM / YYYY',
+      name: 'dateOfBirthHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gender`
+  String get genderLabel {
+    return Intl.message('Gender', name: 'genderLabel', desc: '', args: []);
+  }
+
+  /// `Male`
+  String get maleOption {
+    return Intl.message('Male', name: 'maleOption', desc: '', args: []);
+  }
+
+  /// `Female`
+  String get femaleOption {
+    return Intl.message('Female', name: 'femaleOption', desc: '', args: []);
+  }
+
+  /// `Blood type`
+  String get bloodTypeLabel {
+    return Intl.message(
+      'Blood type',
+      name: 'bloodTypeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I don't know my blood type`
+  String get dontKnowBloodType {
+    return Intl.message(
+      'I don\'t know my blood type',
+      name: 'dontKnowBloodType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weight`
+  String get weightLabel {
+    return Intl.message('Weight', name: 'weightLabel', desc: '', args: []);
+  }
+
+  /// `Height`
+  String get heightLabel {
+    return Intl.message('Height', name: 'heightLabel', desc: '', args: []);
+  }
+
+  /// `You can add allergies, conditions and medications later in your health summary.`
+  String get clinicalInfoBanner {
+    return Intl.message(
+      'You can add allergies, conditions and medications later in your health summary.',
+      name: 'clinicalInfoBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact name`
+  String get contactNameLabel {
+    return Intl.message(
+      'Contact name',
+      name: 'contactNameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `e.g. Ahmed Mostafa`
+  String get contactNameHint {
+    return Intl.message(
+      'e.g. Ahmed Mostafa',
+      name: 'contactNameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact phone`
+  String get contactPhoneLabel {
+    return Intl.message(
+      'Contact phone',
+      name: 'contactPhoneLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Review your details`
+  String get reviewYourDetailsTitle {
+    return Intl.message(
+      'Review your details',
+      name: 'reviewYourDetailsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap Edit to change a step`
+  String get tapEditToChangeStep {
+    return Intl.message(
+      'Tap Edit to change a step',
+      name: 'tapEditToChangeStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit`
+  String get editAction {
+    return Intl.message('Edit', name: 'editAction', desc: '', args: []);
+  }
+
+  /// `1 · ACCOUNT`
+  String get sectionAccount {
+    return Intl.message(
+      '1 · ACCOUNT',
+      name: 'sectionAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `2 · PERSONAL`
+  String get sectionPersonal {
+    return Intl.message(
+      '2 · PERSONAL',
+      name: 'sectionPersonal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3 · CLINICAL`
+  String get sectionClinical {
+    return Intl.message(
+      '3 · CLINICAL',
+      name: 'sectionClinical',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create account`
+  String get createAccountButton {
+    return Intl.message(
+      'Create account',
+      name: 'createAccountButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not provided`
+  String get notProvided {
+    return Intl.message(
+      'Not provided',
+      name: 'notProvided',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't create your account`
+  String get couldntCreateAccountTitle {
+    return Intl.message(
+      'We couldn\'t create your account',
+      name: 'couldntCreateAccountTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your other details are saved. Fix the highlighted field, then continue to review.`
+  String get couldntCreateAccountSubtitle {
+    return Intl.message(
+      'Your other details are saved. Fix the highlighted field, then continue to review.',
+      name: 'couldntCreateAccountSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your email address`
+  String get emailRequiredError {
+    return Intl.message(
+      'Please enter your email address',
+      name: 'emailRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a valid email address`
+  String get invalidEmailError {
+    return Intl.message(
+      'Please enter a valid email address',
+      name: 'invalidEmailError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your phone number`
+  String get phoneRequiredError {
+    return Intl.message(
+      'Please enter your phone number',
+      name: 'phoneRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a valid phone number`
+  String get invalidPhoneError {
+    return Intl.message(
+      'Please enter a valid phone number',
+      name: 'invalidPhoneError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must be at least 8 characters`
+  String get passwordLengthError {
+    return Intl.message(
+      'Password must be at least 8 characters',
+      name: 'passwordLengthError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please confirm your password`
+  String get confirmPasswordRequiredError {
+    return Intl.message(
+      'Please confirm your password',
+      name: 'confirmPasswordRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passwords do not match`
+  String get passwordsDoNotMatchError {
+    return Intl.message(
+      'Passwords do not match',
+      name: 'passwordsDoNotMatchError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your full name`
+  String get fullNameRequiredError {
+    return Intl.message(
+      'Please enter your full name',
+      name: 'fullNameRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your national ID`
+  String get nationalIdRequiredError {
+    return Intl.message(
+      'Please enter your national ID',
+      name: 'nationalIdRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a valid 14-digit national ID`
+  String get invalidNationalIdError {
+    return Intl.message(
+      'Please enter a valid 14-digit national ID',
+      name: 'invalidNationalIdError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select your date of birth`
+  String get dateOfBirthRequiredError {
+    return Intl.message(
+      'Please select your date of birth',
+      name: 'dateOfBirthRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select your gender`
+  String get genderRequiredError {
+    return Intl.message(
+      'Please select your gender',
+      name: 'genderRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `0.0`
+  String get weightHint {
+    return Intl.message('0.0', name: 'weightHint', desc: '', args: []);
+  }
+
+  /// `0`
+  String get heightHint {
+    return Intl.message('0', name: 'heightHint', desc: '', args: []);
+  }
+
+  /// `kg`
+  String get kgUnit {
+    return Intl.message('kg', name: 'kgUnit', desc: '', args: []);
+  }
+
+  /// `cm`
+  String get cmUnit {
+    return Intl.message('cm', name: 'cmUnit', desc: '', args: []);
+  }
+
+  /// `Invalid number`
+  String get invalidNumberError {
+    return Intl.message(
+      'Invalid number',
+      name: 'invalidNumberError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact name`
+  String get emergencyContactNameLabel {
+    return Intl.message(
+      'Contact name',
+      name: 'emergencyContactNameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ahmed Mostafa`
+  String get emergencyContactNameHint {
+    return Intl.message(
+      'Ahmed Mostafa',
+      name: 'emergencyContactNameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact phone`
+  String get emergencyContactPhoneLabel {
+    return Intl.message(
+      'Contact phone',
+      name: 'emergencyContactPhoneLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `+20 108 765 4321`
+  String get emergencyContactPhoneHint {
+    return Intl.message(
+      '+20 108 765 4321',
+      name: 'emergencyContactPhoneHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1 · ACCOUNT`
+  String get accountSectionTitle {
+    return Intl.message(
+      '1 · ACCOUNT',
+      name: 'accountSectionTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `2 · PERSONAL`
+  String get personalSectionTitle {
+    return Intl.message(
+      '2 · PERSONAL',
+      name: 'personalSectionTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3 · CLINICAL`
+  String get clinicalSectionTitle {
+    return Intl.message(
+      '3 · CLINICAL',
+      name: 'clinicalSectionTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit`
+  String get editButton {
+    return Intl.message('Edit', name: 'editButton', desc: '', args: []);
+  }
+
+  /// `Blood`
+  String get bloodLabel {
+    return Intl.message('Blood', name: 'bloodLabel', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

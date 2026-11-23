@@ -13,7 +13,7 @@ import 'package:healthcare_app/features/auth/presentation/cubit/login_cubit.dart
 import 'package:healthcare_app/features/auth/presentation/widgets/auth_brand_header.dart';
 import 'package:healthcare_app/features/auth/presentation/widgets/auth_footer_prompt.dart';
 import 'package:healthcare_app/features/auth/presentation/widgets/login_error_banner.dart';
-import 'package:healthcare_app/features/auth/presentation/widgets/patient_protal_notice.dart';
+import 'package:healthcare_app/features/auth/presentation/widgets/auth_info_notice.dart';
 import 'package:healthcare_app/generated/l10n.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -158,14 +158,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           if (!hasLoginError) ...[
                             SizedBox(height: AppDimensions.spacing16.h),
-                            const PatientPortalNotice(),
+                            AuthInfoNotice(message: s.patientPortalNotice),
                           ],
                           const Spacer(),
                           SizedBox(height: AppDimensions.spacing24.h),
                           AuthFooterPrompt(
                             leadingText: s.newToShifa,
                             actionText: s.createAccount,
-                            onActionTap: () {},
+                            onActionTap: () {
+                              context.pushReplacementNamed(
+                                Routes.registerScreen,
+                              );
+                            },
                           ),
                         ],
                       ),
