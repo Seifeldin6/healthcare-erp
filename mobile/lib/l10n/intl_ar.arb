@@ -151,5 +151,9 @@
     "personalSectionTitle": "2 · البيانات الشخصية",
     "clinicalSectionTitle": "3 · البيانات الصحية",
     "editButton": "تعديل",
-    "bloodLabel": "فصيلة الدم"
+    "bloodLabel": "فصيلة الدم",
+    "navHome": "الرئيسية",
+    "navPharmacists": "الصيادلة",
+    "navConsultations": "الاستشارات",
+    "navProfile": "حسابي"
 }

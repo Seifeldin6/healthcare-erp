@@ -203,6 +203,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "nationalIdRequiredError": MessageLookupByLibrary.simpleMessage(
       "يرجى إدخال الرقم القومي",
     ),
+    "navConsultations": MessageLookupByLibrary.simpleMessage("الاستشارات"),
+    "navHome": MessageLookupByLibrary.simpleMessage("الرئيسية"),
+    "navPharmacists": MessageLookupByLibrary.simpleMessage("الصيادلة"),
+    "navProfile": MessageLookupByLibrary.simpleMessage("حسابي"),
     "newToShifa": MessageLookupByLibrary.simpleMessage("جديد على شفاء؟ "),
     "notProvided": MessageLookupByLibrary.simpleMessage("غير محدد"),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(

@@ -1454,6 +1454,36 @@ class S {
   String get bloodLabel {
     return Intl.message('Blood', name: 'bloodLabel', desc: '', args: []);
   }
+
+  /// `Home`
+  String get navHome {
+    return Intl.message('Home', name: 'navHome', desc: '', args: []);
+  }
+
+  /// `Pharmacists`
+  String get navPharmacists {
+    return Intl.message(
+      'Pharmacists',
+      name: 'navPharmacists',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Consultations`
+  String get navConsultations {
+    return Intl.message(
+      'Consultations',
+      name: 'navConsultations',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile`
+  String get navProfile {
+    return Intl.message('Profile', name: 'navProfile', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
