@@ -7,6 +7,7 @@ import 'package:healthcare_app/features/auth/presentation/screens/login_screen.d
 import 'package:healthcare_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:healthcare_app/features/choose_language/presentation/screens/choose_language_screen.dart';
 import 'package:healthcare_app/features/home_screen.dart';
+import 'package:healthcare_app/features/main_layout/presentation/main_layout_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import 'routes.dart';
@@ -28,7 +29,10 @@ class AppRouter {
           ),
         );
       case Routes.homeScreen:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        final initialIndex = settings.arguments as int? ?? 0;
+        return MaterialPageRoute(
+          builder: (_) => MainLayoutScreen(initialIndex: initialIndex),
+        );
       case Routes.registerScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider(

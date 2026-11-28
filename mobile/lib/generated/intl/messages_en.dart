@@ -209,6 +209,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "nationalIdRequiredError": MessageLookupByLibrary.simpleMessage(
       "Please enter your national ID",
     ),
+    "navConsultations": MessageLookupByLibrary.simpleMessage("Consultations"),
+    "navHome": MessageLookupByLibrary.simpleMessage("Home"),
+    "navPharmacists": MessageLookupByLibrary.simpleMessage("Pharmacists"),
+    "navProfile": MessageLookupByLibrary.simpleMessage("Profile"),
     "newToShifa": MessageLookupByLibrary.simpleMessage("New to Shifa? "),
     "notProvided": MessageLookupByLibrary.simpleMessage("Not provided"),
     "onboardingAlreadyHaveAccount": MessageLookupByLibrary.simpleMessage(

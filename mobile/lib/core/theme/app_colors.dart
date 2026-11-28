@@ -5,11 +5,14 @@ abstract final class AppColors {
   static const Color primaryPressed = Color(0xFF084F44);
   static const Color primaryTint = Color(0xFFE6F2EF);
   static const Color onPrimarySoft = Color(0xFFD4ECE7);
-
+  static const Color scaffoldBackground = Color(0xFFF5F8F7);
+  static const Color navBorder = Color(0xFFE8EEEC);
+  
   static const Color surface = Color(0xFFFFFFFF);
   static const Color ink = Color(0xFF10201D);
   static const Color body = Color(0xFF4A5C58);
   static const Color line = Color(0xFFDCE5E2);
+
 
   static const Color error = Color(0xFFB42318);
   static const Color errorTint = Color(0xFFFEF3F2);
